@@ -27,7 +27,7 @@ export function TablePagination({
 	onLastPage,
 }: TablePaginationProps) {
 	return (
-		<div className='flex items-center gap-2 text-sm'>
+		<div className='flex items-center gap-2 text-sm max-md:flex-col max-md:gap-4'>
 			<span>
 				Рядки {startRow} - {endRow} з {totalRows}
 			</span>

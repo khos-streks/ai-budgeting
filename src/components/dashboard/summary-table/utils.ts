@@ -1,3 +1,5 @@
+import { FormattedCell } from '@/lib/excel-utils'
+import ExcelJS from 'exceljs'
 import * as XLSX from 'xlsx'
 import { ColumnMapping } from './types'
 
@@ -89,10 +91,12 @@ export const processXLSXData = async (
 	jsonData: any[][]
 	headers: string[]
 	dataRows: any[][]
+	formattedData?: FormattedCell[][]
 }> => {
 	// Convert blob to array buffer
 	const arrayBuffer = await blob.arrayBuffer()
 
+	// Standard XLSX processing for data
 	const workbook = XLSX.read(arrayBuffer, { type: 'array' })
 	const sheetName = workbook.SheetNames[0]
 	const worksheet = workbook.Sheets[sheetName]
@@ -101,5 +105,64 @@ export const processXLSXData = async (
 	const headers = jsonData[0] as string[]
 	const dataRows = jsonData.length > 1 ? jsonData.slice(1) : []
 
-	return { jsonData, headers, dataRows }
+	// ExcelJS processing for formatting
+	let formattedData: FormattedCell[][] = []
+	try {
+		const excelWorkbook = new ExcelJS.Workbook()
+		await excelWorkbook.xlsx.load(arrayBuffer)
+
+		const excelSheet = excelWorkbook.worksheets[0]
+
+		// Skip header row (index 1)
+		formattedData = []
+
+		excelSheet.eachRow((row, rowNumber) => {
+			// Skip header row
+			if (rowNumber === 1) return
+
+			const formattedRow: FormattedCell[] = []
+
+			row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+				const formattedCell: FormattedCell = {
+					value: cell.value?.toString() || null,
+				}
+
+				// Extract cell formatting
+				if (cell.style) {
+					formattedCell.style = {}
+
+					// Background color - handle different fill types
+					if (cell.fill && cell.fill.type === 'pattern') {
+						// Safe type assertion since we checked the type
+						const patternFill = cell.fill as ExcelJS.FillPattern
+						if (patternFill.fgColor?.argb) {
+							formattedCell.style.backgroundColor = `#${patternFill.fgColor.argb.substring(
+								2
+							)}`
+						}
+					}
+
+					// Font formatting
+					if (cell.font) {
+						if (cell.font.color?.argb) {
+							formattedCell.style.color = `#${cell.font.color.argb.substring(
+								2
+							)}`
+						}
+						formattedCell.style.bold = cell.font.bold || false
+						formattedCell.style.italic = cell.font.italic || false
+					}
+				}
+
+				formattedRow[colNumber - 1] = formattedCell
+			})
+
+			formattedData.push(formattedRow)
+		})
+	} catch (error) {
+		console.error('Error extracting Excel formatting:', error)
+		// Continue without formatting if there's an error
+	}
+
+	return { jsonData, headers, dataRows, formattedData }
 }

@@ -1,10 +1,13 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
+import { FormattedCell } from '@/lib/excel-utils'
 import { DataTable } from './data-table'
 import { TablePagination } from './table-pagination'
 import { DisplayColumn } from './types'
 import { formatDate } from './utils'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 interface DataContainerProps {
 	startDate: string
@@ -12,6 +15,10 @@ interface DataContainerProps {
 	displayColumns: DisplayColumn[]
 	currentPageData: any[][]
 	startRow: number
+	formattedData?: FormattedCell[][]
+	useFormatting?: boolean
+	toggleFormatting?: () => void
+	hasFormatting?: boolean
 	pagination: {
 		currentPage: number
 		maxPage: number
@@ -34,6 +41,10 @@ export function DataContainer({
 	displayColumns,
 	currentPageData,
 	startRow,
+	formattedData,
+	useFormatting = false,
+	toggleFormatting,
+	hasFormatting = false,
 	pagination,
 }: DataContainerProps) {
 	const formattedDate = formatDate(startDate)
@@ -42,30 +53,45 @@ export function DataContainer({
 	return (
 		<Card>
 			<CardContent className='pt-6'>
-				<div className='flex justify-between items-center mb-4'>
+				<div className='flex justify-between items-center mb-4 max-md:flex-col max-md:gap-4'>
 					<div className='text-sm text-muted-foreground'>
 						Дані станом на: {formattedDate} - {formattedEndDate}
 					</div>
 
-					{pagination.hasMultiplePages && (
-						<TablePagination
-							currentPage={pagination.currentPage}
-							maxPage={pagination.maxPage}
-							startRow={pagination.startRow}
-							endRow={pagination.endRow}
-							totalRows={pagination.totalRows}
-							onFirstPage={pagination.actions.firstPage}
-							onPrevPage={pagination.actions.prevPage}
-							onNextPage={pagination.actions.nextPage}
-							onLastPage={pagination.actions.lastPage}
-						/>
-					)}
+					<div className='flex items-center gap-4'>
+						{hasFormatting && toggleFormatting && (
+							<div className='flex items-center space-x-2'>
+								<Switch
+									id='formatting'
+									checked={useFormatting}
+									onCheckedChange={toggleFormatting}
+								/>
+								<Label htmlFor='formatting'>Зберегти колір комірок</Label>
+							</div>
+						)}
+
+						{pagination.hasMultiplePages && (
+							<TablePagination
+								currentPage={pagination.currentPage}
+								maxPage={pagination.maxPage}
+								startRow={pagination.startRow}
+								endRow={pagination.endRow}
+								totalRows={pagination.totalRows}
+								onFirstPage={pagination.actions.firstPage}
+								onPrevPage={pagination.actions.prevPage}
+								onNextPage={pagination.actions.nextPage}
+								onLastPage={pagination.actions.lastPage}
+							/>
+						)}
+					</div>
 				</div>
 
 				<DataTable
 					displayColumns={displayColumns}
 					currentPageData={currentPageData}
 					startRow={startRow}
+					formattedData={formattedData}
+					useFormatting={useFormatting}
 				/>
 
 				{/* Bottom pagination */}

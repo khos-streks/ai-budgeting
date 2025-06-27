@@ -1,4 +1,5 @@
 import { useBudgeting } from '@/hooks/useBudgeting'
+import { FormattedCell } from '@/lib/excel-utils'
 import { useEffect, useState } from 'react'
 import { COLUMN_MAPPINGS, DisplayColumn } from '../types'
 import { detectDateColumns, mapColumnTitles, processXLSXData } from '../utils'
@@ -8,6 +9,8 @@ export function useTableData(startDate: string, endDate: string) {
 	const [isActive, setIsActive] = useState(false)
 	const [tableData, setTableData] = useState<Array<Array<any>>>([])
 	const [displayColumns, setDisplayColumns] = useState<DisplayColumn[]>([])
+	const [formattedData, setFormattedData] = useState<FormattedCell[][]>([])
+	const [useFormatting, setUseFormatting] = useState(true) // Default to using formatting
 
 	// Query
 	const { data, isLoading, error, refetch } = useBudgeting(
@@ -24,9 +27,13 @@ export function useTableData(startDate: string, endDate: string) {
 	// Process the data when received
 	const handleProcessData = async (blob: Blob) => {
 		try {
-			const { jsonData, headers, dataRows } = await processXLSXData(blob)
+			const { jsonData, headers, dataRows, formattedData } =
+				await processXLSXData(blob)
 
 			setTableData(jsonData)
+			if (formattedData) {
+				setFormattedData(formattedData)
+			}
 
 			// Process columns
 			if (jsonData.length > 0) {
@@ -56,12 +63,18 @@ export function useTableData(startDate: string, endDate: string) {
 			console.error('Error processing XLSX data:', err)
 			setTableData([])
 			setDisplayColumns([])
+			setFormattedData([])
 		}
 	}
 
 	const fetchData = () => {
 		setIsActive(true)
 		refetch()
+	}
+
+	// Toggle formatting
+	const toggleFormatting = () => {
+		setUseFormatting(prev => !prev)
 	}
 
 	// Download functionality
@@ -85,9 +98,13 @@ export function useTableData(startDate: string, endDate: string) {
 	return {
 		tableData,
 		displayColumns,
+		formattedData,
+		useFormatting,
+		toggleFormatting,
 		isLoading,
 		error,
 		hasData: tableData.length > 0 && displayColumns.length > 0,
+		hasFormatting: formattedData.length > 0,
 		fetchData,
 		downloadExcel,
 	}
