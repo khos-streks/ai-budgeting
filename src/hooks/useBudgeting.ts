@@ -1,13 +1,13 @@
 import { budgetingService } from '@/services/budgeting.service'
 import { useQuery } from '@tanstack/react-query'
 
-export function useBudgeting(
+export function useSummaryData(
 	startDate: string,
 	endDate: string,
 	enabled: boolean = true
 ) {
 	return useQuery({
-		queryKey: ['budgeting', startDate, endDate],
+		queryKey: ['summary data', startDate, endDate],
 		queryFn: () => budgetingService.getConsolidated(startDate, endDate),
 		enabled,
 	})
