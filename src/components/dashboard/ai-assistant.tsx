@@ -7,8 +7,9 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
+import { cn } from '@/lib/utils'
 
-export function AiAssistant() {
+export function AiAssistant({ className }: { className?: string }) {
 	const [messages, setMessages] = useState<
 		{
 			role: 'user' | 'assistant'
@@ -42,12 +43,10 @@ export function AiAssistant() {
 			})
 	}
 
-	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-	}, [messages, isThinking])
-
 	return (
-		<Card className='h-[80vh] mb-6 sticky top-6 overflow-hidden flex flex-col'>
+		<Card
+			className={cn('h-[80vh] mb-6 overflow-hidden flex flex-col', className)}
+		>
 			<CardHeader className='pb-2 flex-shrink-0'>
 				<CardTitle className='flex items-center'>
 					<Bot className='mr-2 h-5 w-5' /> AI-ассистент
@@ -89,9 +88,16 @@ export function AiAssistant() {
 													<Bot className='h-5 w-5' />
 												)}
 											</div>
-											<div className='whitespace-pre-wrap'>
-												{message.content}
-											</div>
+											{message.role === 'assistant' ? (
+												<div
+													className='whitespace-pre-wrap'
+													dangerouslySetInnerHTML={{ __html: message.content }}
+												/>
+											) : (
+												<div className='whitespace-pre-wrap'>
+													{message.content}
+												</div>
+											)}
 										</motion.div>
 									))}
 									{isThinking && (
@@ -149,6 +155,7 @@ export function AiAssistant() {
 							type='text'
 							name='message'
 							placeholder='Які найбільші відхилення у витратах?'
+							className='pr-13'
 							disabled={isThinking}
 						/>
 						<Button

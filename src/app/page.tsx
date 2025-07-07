@@ -9,16 +9,18 @@ import { DateProvider } from '@/contexts/date-context'
 export default function Home() {
 	return (
 		<>
-			<main className='py-6 mx-auto grid grid-cols-[3fr_1fr] gap-6 max-lg:grid-cols-2 max-md:grid-cols-1 max-w-full px-4'>
+			<main className='py-6 mx-auto grid grid-cols-[1fr_3fr] gap-6 max-lg:grid-cols-2 max-md:grid-cols-1 max-w-full px-4'>
 				<DateProvider>
-					<div className='w-full overflow-hidden space-y-10'>
+					<div className='space-y-10 max-md:contents'>
 						<DatePicker />
+						<AiAssistant className='max-md:order-10 sticky top-10 h-[calc(100vh-5rem)]' />
+					</div>
+					<div className='w-full overflow-hidden space-y-10'>
 						<PlanFactSummary />
 						<PlanFactTable />
 						<SummaryTable />
 						<TopDeviations />
 					</div>
-					<AiAssistant />
 				</DateProvider>
 			</main>
 		</>
