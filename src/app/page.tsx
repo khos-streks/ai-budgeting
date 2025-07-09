@@ -9,7 +9,7 @@ import { DateProvider } from '@/contexts/date-context'
 export default function Home() {
 	return (
 		<>
-			<main className='py-6 mx-auto grid grid-cols-[1fr_3fr] gap-6 max-lg:grid-cols-2 max-md:grid-cols-1 max-w-full px-4'>
+			<main className='py-6 mx-auto grid grid-cols-[1fr_3fr] gap-6 max-xl:grid-cols-2 max-lg:grid-cols-1 max-w-full px-4'>
 				<DateProvider>
 					<div className='space-y-10 max-md:contents'>
 						<DatePicker />

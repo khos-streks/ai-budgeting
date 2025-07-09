@@ -10,5 +10,6 @@ export function useSummaryData(
 		queryKey: ['summary data', startDate, endDate],
 		queryFn: () => budgetingService.getConsolidated(startDate, endDate),
 		enabled,
+		refetchOnWindowFocus: false,
 	})
 }

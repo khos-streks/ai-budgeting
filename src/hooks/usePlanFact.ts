@@ -6,6 +6,7 @@ export function usePlanFactSummary(startDate: string, endDate: string) {
 		queryKey: ['plan-fact-summary', startDate, endDate],
 		queryFn: () => planFactService.getPlanFact(startDate, endDate),
 		enabled: !!startDate && !!endDate,
+		refetchOnWindowFocus: false,
 	})
 }
 
@@ -14,6 +15,7 @@ export function usePlanFactTable(startDate: string, endDate: string) {
 		queryKey: ['plan-fact-table', startDate, endDate],
 		queryFn: () => planFactService.getMainTable(startDate, endDate),
 		enabled: !!startDate && !!endDate,
+		refetchOnWindowFocus: false,
 	})
 }
 
@@ -22,5 +24,6 @@ export function useTopDeviations(startDate: string, endDate: string) {
 		queryKey: ['top-deviations', startDate, endDate],
 		queryFn: () => planFactService.getTopDeviations(startDate, endDate),
 		enabled: !!startDate && !!endDate,
+		refetchOnWindowFocus: false,
 	})
 }

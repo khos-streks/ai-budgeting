@@ -1,13 +1,19 @@
 import { api } from '@/lib/axios'
 
+// Define interface for anomalies data structure
+interface AnomalyData {
+	[category: string]: string[] | object[] | any
+}
+
 class PlanFactService {
 	async getPlanFact(startDate: string, endDate: string) {
 		return (
 			await api.get<{
-				total_budget: number
-				budget_change_percent: number
+				total_plan: number
+				plan_change_percent: number
 				execution_percent: number
 				anomalies_count: number
+				anomalies?: AnomalyData
 			}>(`/plan-fact/summary?start_date=${startDate}&end_date=${endDate}`)
 		).data
 	}

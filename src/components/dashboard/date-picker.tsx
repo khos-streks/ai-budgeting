@@ -48,7 +48,7 @@ export function DatePicker() {
 		planFactEnd: false,
 	})
 
-	// Local state for input values
+	// Local state for input values (pending changes)
 	const [inputValues, setInputValues] = useState({
 		budgetingStart: budgetingDateRange.startDate,
 		budgetingEnd: budgetingDateRange.endDate,
@@ -111,10 +111,6 @@ export function DatePicker() {
 		const formattedEndDate = format(endDate, 'yyyy-MM-dd')
 
 		if (type === 'budgeting') {
-			setBudgetingDateRange({
-				startDate: formattedStartDate,
-				endDate: formattedEndDate,
-			})
 			setInputValues(prev => ({
 				...prev,
 				budgetingStart: formattedStartDate,
@@ -126,10 +122,6 @@ export function DatePicker() {
 				budgetingEnd: endDate,
 			}))
 		} else {
-			setPlanFactDateRange({
-				startDate: formattedStartDate,
-				endDate: formattedEndDate,
-			})
 			setInputValues(prev => ({
 				...prev,
 				planFactStart: formattedStartDate,
@@ -160,17 +152,6 @@ export function DatePicker() {
 		} else {
 			setPlanFactPreset('custom')
 		}
-
-		// Update context
-		if (type === 'budgetingStart') {
-			setBudgetingDateRange({ startDate: formattedDate })
-		} else if (type === 'budgetingEnd') {
-			setBudgetingDateRange({ endDate: formattedDate })
-		} else if (type === 'planFactStart') {
-			setPlanFactDateRange({ startDate: formattedDate })
-		} else {
-			setPlanFactDateRange({ endDate: formattedDate })
-		}
 	}
 
 	// Handle manual input changes
@@ -194,18 +175,22 @@ export function DatePicker() {
 		const parsedDate = parseDate(value)
 		if (parsedDate && isValid(parsedDate)) {
 			setDates(prev => ({ ...prev, [type]: parsedDate }))
-
-			// Update context
-			if (type === 'budgetingStart') {
-				setBudgetingDateRange({ startDate: value })
-			} else if (type === 'budgetingEnd') {
-				setBudgetingDateRange({ endDate: value })
-			} else if (type === 'planFactStart') {
-				setPlanFactDateRange({ startDate: value })
-			} else {
-				setPlanFactDateRange({ endDate: value })
-			}
 		}
+	}
+
+	// Apply date changes to context
+	const applyBudgetingDates = () => {
+		setBudgetingDateRange({
+			startDate: inputValues.budgetingStart,
+			endDate: inputValues.budgetingEnd,
+		})
+	}
+
+	const applyPlanFactDates = () => {
+		setPlanFactDateRange({
+			startDate: inputValues.planFactStart,
+			endDate: inputValues.planFactEnd,
+		})
 	}
 
 	// Toggle calendar visibility
@@ -327,12 +312,22 @@ export function DatePicker() {
 					<h3 className='text-lg font-medium'>Бюджетування</h3>
 					{renderPresetTabs('budgeting')}
 					{budgetingPreset === 'custom' ? (
-						<div className='flex gap-4'>
-							{renderDateField('budgetingStart', 'Початкова дата')}
-							{renderDateField('budgetingEnd', 'Кінцева дата')}
+						<div className='flex flex-col gap-4'>
+							<div className='flex gap-4'>
+								{renderDateField('budgetingStart', 'Початкова дата')}
+								{renderDateField('budgetingEnd', 'Кінцева дата')}
+							</div>
+							<Button onClick={applyBudgetingDates} className='self-end'>
+								Застосувати
+							</Button>
 						</div>
 					) : (
-						getDateRangeSummary('budgeting')
+						<div className='flex flex-col gap-2'>
+							{getDateRangeSummary('budgeting')}
+							<Button onClick={applyBudgetingDates} className='self-end'>
+								Застосувати
+							</Button>
+						</div>
 					)}
 				</div>
 
@@ -340,12 +335,22 @@ export function DatePicker() {
 					<h3 className='text-lg font-medium'>План-факт аналіз</h3>
 					{renderPresetTabs('planFact')}
 					{planFactPreset === 'custom' ? (
-						<div className='flex gap-4'>
-							{renderDateField('planFactStart', 'Початкова дата')}
-							{renderDateField('planFactEnd', 'Кінцева дата')}
+						<div className='flex flex-col gap-4'>
+							<div className='flex gap-4'>
+								{renderDateField('planFactStart', 'Початкова дата')}
+								{renderDateField('planFactEnd', 'Кінцева дата')}
+							</div>
+							<Button onClick={applyPlanFactDates} className='self-end'>
+								Застосувати
+							</Button>
 						</div>
 					) : (
-						getDateRangeSummary('planFact')
+						<div className='flex flex-col gap-2'>
+							{getDateRangeSummary('planFact')}
+							<Button onClick={applyPlanFactDates} className='self-end'>
+								Застосувати
+							</Button>
+						</div>
 					)}
 				</div>
 			</CardContent>
