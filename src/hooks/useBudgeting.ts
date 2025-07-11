@@ -1,5 +1,5 @@
 import { budgetingService } from '@/services/budgeting.service'
-import { ConsolidatedFilters, Filters } from '@/typing/filters'
+import { ConsolidatedFilters } from '@/typing/filters'
 import { useQuery } from '@tanstack/react-query'
 
 export function useSummaryData(
