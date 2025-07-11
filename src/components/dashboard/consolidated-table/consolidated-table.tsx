@@ -2,20 +2,55 @@
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ExcelHtmlViewer } from '@/components/ui/excel-viewer'
-import { useDateContext } from '@/contexts/date-context'
-import { useConsolidatedFilters, useSummaryData } from '@/hooks/useBudgeting'
-import { useTableFilters } from '@/hooks/useTableFilters'
-import { useEffect, useState } from 'react'
 import {
 	AdvancedFilters,
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
+import { useDateContext } from '@/contexts/date-context'
+import { useTableFilters } from '@/hooks/useTableFilters'
+import {
+	CONSOLIDATED_QUICK_FILTERS,
+	ConsolidatedFilters,
+	FilterOptions,
+} from '@/typing/filters'
+import { useEffect, useState } from 'react'
 
-export function SummaryTable() {
+// Mock hook for consolidated table data
+function useConsolidatedTable(
+	startDate: string,
+	endDate: string,
+	budgetVersion?: string,
+	filters?: ConsolidatedFilters
+) {
+	// This would be replaced with actual API call
+	return {
+		data: null as Blob | null,
+		isLoading: false,
+	}
+}
+
+// Mock hook for consolidated table filters
+function useConsolidatedTableFilters() {
+	// This would be replaced with actual API call
+	return {
+		data: {
+			budget: ['Бюджет 1', 'Бюджет 2'],
+			budget_item: ['Стаття 1', 'Стаття 2'],
+			cfo: ['ЦФО 1', 'ЦФО 2'],
+			org: ['Організація 1', 'Організація 2'],
+			macro_item: ['Макростаття 1', 'Макростаття 2'],
+			budget_object: ['Експорт', 'Україна', 'Украина', 'Экспорт'],
+		} as FilterOptions,
+		isLoading: false,
+	}
+}
+
+export function ConsolidatedTable() {
 	const { dateRange } = useDateContext()
 	const { data: filterOptions, isLoading: filtersLoading } =
-		useConsolidatedFilters()
+		useConsolidatedTableFilters()
+	const [fileUrl, setFileUrl] = useState<string | null>(null)
 
 	const {
 		filters,
@@ -25,16 +60,16 @@ export function SummaryTable() {
 		clearAllFilters,
 		applyQuickFilter,
 		toggleFiltersExpanded,
-	} = useTableFilters()
+	} = useTableFilters(CONSOLIDATED_QUICK_FILTERS)
 
-	const { data: fileData, isLoading } = useSummaryData(
+	const { data: fileData, isLoading } = useConsolidatedTable(
 		dateRange.startDate,
 		dateRange.endDate,
 		dateRange.budgetVersion,
-		filters
+		filters as ConsolidatedFilters
 	)
 
-	const [fileUrl, setFileUrl] = useState<string | null>(null)
+	// Create a URL for the blob when fileData changes
 	useEffect(() => {
 		if (fileData instanceof Blob) {
 			const url = URL.createObjectURL(fileData)
@@ -47,9 +82,9 @@ export function SummaryTable() {
 
 	return (
 		<Card className='w-full overflow-hidden'>
-			<CardHeader className='flex gap-5 items-center'>
+			<CardHeader>
 				<TableHeader
-					title='Зведена таблиця'
+					title='Зведена таблиця бюджету'
 					filters={filters}
 					hasActiveFilters={hasActiveFilters}
 					fileUrl={fileUrl}
@@ -57,11 +92,14 @@ export function SummaryTable() {
 					onClearFilters={clearAllFilters}
 					onToggleFilters={toggleFiltersExpanded}
 					isFiltersExpanded={isFiltersExpanded}
+					downloadFileName='consolidated-budget'
 				/>
 			</CardHeader>
 
-			<CardContent>
+			<CardContent className='pt-0'>
+				{/* Quick Filter Buttons */}
 				<QuickFilters
+					presets={CONSOLIDATED_QUICK_FILTERS}
 					onQuickFilter={applyQuickFilter}
 				/>
 
@@ -73,8 +111,8 @@ export function SummaryTable() {
 							filterOptions={filterOptions}
 							isLoading={filtersLoading}
 							onFilterChange={handleFilterChange}
-							showBudgetObject
-							showSorting
+							showSorting={true}
+							showBudgetObject={true}
 						/>
 					</div>
 				)}

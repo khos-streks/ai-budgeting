@@ -3,7 +3,7 @@
 import { useAiAssistant } from '@/hooks/useAiAssistant'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Bot, Loader2, SendIcon, User } from 'lucide-react'
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'

@@ -55,13 +55,10 @@ const NUMERIC_COLUMNS = [
 	'Виконання (%)',
 ]
 
-export function ExcelHtmlViewer({ file }: { file: File }) {
+export function ExcelHtmlViewer({ file }: { file: File | Blob }) {
 	const [rows, setRows] = useState<ExcelJS.CellValue[][]>([])
 	const [page, setPage] = useState(1)
-	const [direction, setDirection] = useState(0) // -1 назад, 1 вперед
-	const [headerIndexMap, setHeaderIndexMap] = useState<Record<string, number>>(
-		{}
-	)
+	const [direction, setDirection] = useState(0)
 
 	const totalPages = Math.ceil((rows.length - 1) / ROWS_PER_PAGE)
 
@@ -93,7 +90,6 @@ export function ExcelHtmlViewer({ file }: { file: File }) {
 							headerMap[headerName] = index
 						}
 					})
-					setHeaderIndexMap(headerMap)
 				}
 
 				setRows(parsed)

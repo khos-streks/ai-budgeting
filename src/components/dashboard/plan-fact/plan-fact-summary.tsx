@@ -10,10 +10,11 @@ import { SummaryData } from './summary-utils'
 
 // Main component
 export function PlanFactSummary() {
-	const { planFactDateRange } = useDateContext()
+	const { dateRange } = useDateContext()
 	const { data, isLoading } = usePlanFactSummary(
-		planFactDateRange.startDate,
-		planFactDateRange.endDate
+		dateRange.startDate,
+		dateRange.endDate,
+		dateRange.budgetVersion
 	)
 
 	// Handler for rendering different types of summary items
@@ -34,8 +35,8 @@ export function PlanFactSummary() {
 		<Card>
 			<CardHeader>
 				<CardTitle>
-					Узагальнена інформація за період "{planFactDateRange.startDate}" -{' '}
-					"{planFactDateRange.endDate}"
+					Узагальнена інформація за період "{dateRange.startDate}" - "
+					{dateRange.endDate}"
 				</CardTitle>
 			</CardHeader>
 			<CardContent>

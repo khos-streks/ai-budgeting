@@ -2,20 +2,23 @@
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ExcelHtmlViewer } from '@/components/ui/excel-viewer'
-import { useDateContext } from '@/contexts/date-context'
-import { useConsolidatedFilters, useSummaryData } from '@/hooks/useBudgeting'
-import { useTableFilters } from '@/hooks/useTableFilters'
-import { useEffect, useState } from 'react'
 import {
 	AdvancedFilters,
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
+import { useDateContext } from '@/contexts/date-context'
+import { useMainTableFilters, usePlanFactTable } from '@/hooks/usePlanFact'
+import { useTableFilters } from '@/hooks/useTableFilters'
+import { PLAN_FACT_QUICK_FILTERS, PlanFactFilters } from '@/typing/filters'
+import { useEffect, useState } from 'react'
+import { SortingInfo } from './sorting-info'
 
-export function SummaryTable() {
+export function PlanFactTable() {
 	const { dateRange } = useDateContext()
 	const { data: filterOptions, isLoading: filtersLoading } =
-		useConsolidatedFilters()
+		useMainTableFilters()
+	const [fileUrl, setFileUrl] = useState<string | null>(null)
 
 	const {
 		filters,
@@ -25,16 +28,16 @@ export function SummaryTable() {
 		clearAllFilters,
 		applyQuickFilter,
 		toggleFiltersExpanded,
-	} = useTableFilters()
+	} = useTableFilters(PLAN_FACT_QUICK_FILTERS)
 
-	const { data: fileData, isLoading } = useSummaryData(
+	const { data: fileData, isLoading } = usePlanFactTable(
 		dateRange.startDate,
 		dateRange.endDate,
 		dateRange.budgetVersion,
-		filters
+		filters as PlanFactFilters
 	)
 
-	const [fileUrl, setFileUrl] = useState<string | null>(null)
+	// Create a URL for the blob when fileData changes
 	useEffect(() => {
 		if (fileData instanceof Blob) {
 			const url = URL.createObjectURL(fileData)
@@ -47,9 +50,9 @@ export function SummaryTable() {
 
 	return (
 		<Card className='w-full overflow-hidden'>
-			<CardHeader className='flex gap-5 items-center'>
+			<CardHeader>
 				<TableHeader
-					title='Зведена таблиця'
+					title='Основна таблиця (план-факт аналіз)'
 					filters={filters}
 					hasActiveFilters={hasActiveFilters}
 					fileUrl={fileUrl}
@@ -60,10 +63,15 @@ export function SummaryTable() {
 				/>
 			</CardHeader>
 
-			<CardContent>
+			<CardContent className='pt-0'>
+				{/* Quick Filter Buttons */}
 				<QuickFilters
+					presets={PLAN_FACT_QUICK_FILTERS}
 					onQuickFilter={applyQuickFilter}
 				/>
+
+				{/* Sorting Info */}
+				<SortingInfo />
 
 				{/* Advanced Filters */}
 				{isFiltersExpanded && (
@@ -73,8 +81,8 @@ export function SummaryTable() {
 							filterOptions={filterOptions}
 							isLoading={filtersLoading}
 							onFilterChange={handleFilterChange}
-							showBudgetObject
-							showSorting
+							showSorting={false}
+							showBudgetObject={false}
 						/>
 					</div>
 				)}
