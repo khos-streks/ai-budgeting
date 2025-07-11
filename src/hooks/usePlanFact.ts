@@ -1,5 +1,5 @@
 import { planFactService } from '@/services/plan-fact.service'
-import { Filters } from '@/typing/filters'
+import { PlanFactFilters } from '@/typing/filters'
 import { useQuery } from '@tanstack/react-query'
 
 export function usePlanFactSummary(
@@ -20,7 +20,7 @@ export function usePlanFactTable(
 	startDate: string,
 	endDate: string,
 	budgetVersion?: string,
-	filters?: Filters
+	filters?: PlanFactFilters
 ) {
 	return useQuery({
 		queryKey: ['plan-fact-table', startDate, endDate, budgetVersion, filters],
