@@ -56,7 +56,7 @@ export function TableHeader({
 	}
 
 	return (
-		<div className='flex gap-5 items-center'>
+		<div className='flex gap-5 items-center max-sm:flex-col'>
 			<div className='flex-1'>
 				<CardTitle>{title}</CardTitle>
 				{hasActiveFilters && (
@@ -68,7 +68,7 @@ export function TableHeader({
 					</div>
 				)}
 			</div>
-			<div className='flex items-center gap-2'>
+			<div className='flex items-center gap-2 max-sm:flex-wrap'>
 				{hasActiveFilters && (
 					<Button
 						variant='outline'
