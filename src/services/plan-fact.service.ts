@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios'
-import { FilterOptions, Filters } from '@/typing/filters'
+import { FilterOptions, PlanFactFilters } from '@/typing/filters'
 
 interface AnomalyData {
 	[category: string]: string[] | object[] | any
@@ -35,7 +35,7 @@ class PlanFactService {
 		startDate: string,
 		endDate: string,
 		budgetVersion?: string,
-		filters?: Filters
+		filters?: PlanFactFilters
 	) {
 		const params = new URLSearchParams({
 			start_date: startDate,
