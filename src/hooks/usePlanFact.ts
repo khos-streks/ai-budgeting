@@ -1,6 +1,6 @@
 import { planFactService } from '@/services/plan-fact.service'
 import { PlanFactFilters } from '@/typing/filters'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 
 export function usePlanFactSummary(
 	startDate: string,
@@ -50,6 +50,32 @@ export function useTopDeviations(
 		queryFn: () =>
 			planFactService.getTopDeviations(startDate, endDate, budgetVersion),
 		enabled: !!startDate && !!endDate,
+		refetchOnWindowFocus: false,
+	})
+}
+
+export function useStartPlanFact() {
+	return useMutation({
+		mutationFn: async ({
+			startDate,
+			endDate,
+			budgetVersion,
+		}: {
+			startDate: string
+			endDate: string
+			budgetVersion: number | null
+		}) => {
+			return await planFactService.start(startDate, endDate, budgetVersion)
+		},
+	})
+}
+
+export function useGetPlanFactStatus() {
+	return useQuery({
+		queryKey: ['get plan-fact status'],
+		queryFn: async () => {
+			return await planFactService.getStatus()
+		},
 		refetchOnWindowFocus: false,
 	})
 }

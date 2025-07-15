@@ -48,6 +48,42 @@ class BudgetingService {
 		const response = await api.get(`/budgeting/filters/consolidated`)
 		return response.data
 	}
+
+	async getBudgetCounts() {
+		const response = await api.get<{ count: number }>(`/budgeting/count`)
+		return response.data
+	}
+
+	async getFiles() {
+		const response = await api.get<{ files: string[] }>(`/budgeting/file-names`)
+		return response.data
+	}
+
+	async downloadFile(fileName: string | null) {
+		if (!fileName) return
+		const response = await api.get(`/budgeting/download/${fileName}`, {
+			responseType: 'blob',
+		})
+		return response.data
+	}
+
+	async start(start_date: string, end_date: string) {
+		const response = await api.post<{ status: string; message?: string }>(
+			`/budgeting/start`,
+			{
+				start_date,
+				end_date,
+			}
+		)
+		return response.data
+	}
+
+	async getStatus() {
+		const response = await api.get<{ is_running: boolean; status: string }>(
+			`/budgeting/status`
+		)
+		return response.data
+	}
 }
 
 export const budgetingService = new BudgetingService()

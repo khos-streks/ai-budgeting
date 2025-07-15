@@ -23,6 +23,8 @@ export const getLabel = (key: string) => {
 			return 'Виконання'
 		case 'anomalies_count':
 			return 'Аномалії'
+		case 'budget_counts':
+			return 'Кількість бюджетів'
 		default:
 			return key
 	}

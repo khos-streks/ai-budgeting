@@ -7,15 +7,19 @@ import { ReactNode } from 'react'
 import { AnomaliesItem } from './anomalies-item'
 import { SummaryItem } from './summary-item'
 import { SummaryData } from './summary-utils'
+import { useBudgetCounts } from '@/hooks/useBudgeting'
 
 // Main component
 export function PlanFactSummary() {
 	const { dateRange } = useDateContext()
-	const { data, isLoading } = usePlanFactSummary(
+	const { data: budgetCounts, isLoading: isBudgetCountsLoading } = useBudgetCounts()
+	const { data, isLoading: isPlanFactLoading } = usePlanFactSummary(
 		dateRange.startDate,
 		dateRange.endDate,
 		dateRange.budgetVersion
 	)
+
+	const isLoading = isBudgetCountsLoading || isPlanFactLoading
 
 	// Handler for rendering different types of summary items
 	const renderSummaryItem = (
@@ -44,11 +48,11 @@ export function PlanFactSummary() {
 					<div className='flex items-center justify-center p-6'>
 						<span className='font-bold'>Завантаження...</span>
 					</div>
-				) : data ? (
+				) : data && budgetCounts ? (
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-						{Object.entries(data)
+						{Object.entries({ ...data, budget_counts: budgetCounts.count })
 							?.filter(([key]) => key !== 'anomalies')
-							.map(([key, value]) => renderSummaryItem(key, value, data))}
+							.map(([key, value]) => renderSummaryItem(key, value, data)	)}
 					</div>
 				) : (
 					<div className='flex items-center justify-center p-6'>

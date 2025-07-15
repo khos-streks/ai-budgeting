@@ -1,4 +1,5 @@
 import { AiAssistant } from '@/components/dashboard/ai-assistant'
+import { FilesDownloading } from '@/components/dashboard/files-downloading'
 import { InfoPicker } from '@/components/dashboard/info-picker'
 import { PlanFactSummary } from '@/components/dashboard/plan-fact/plan-fact-summary'
 import { PlanFactTable } from '@/components/dashboard/plan-fact/plan-fact-table'
@@ -14,6 +15,7 @@ export default function Home() {
 				<DateProvider>
 					<div className='space-y-10 max-md:contents'>
 						<InfoPicker />
+						<FilesDownloading />
 						<AiAssistant className='max-md:order-10 sticky top-10 h-[calc(100vh-5rem)]' />
 					</div>
 					<div className='w-full overflow-hidden space-y-10'>

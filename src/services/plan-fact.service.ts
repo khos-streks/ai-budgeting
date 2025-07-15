@@ -99,6 +99,29 @@ class PlanFactService {
 			}>(`/plan-fact/top-deviations?${params.toString()}`)
 		).data
 	}
+
+	async start(
+		start_date: string,
+		end_date: string,
+		budget_version: number | null
+	) {
+		const response = await api.post<{ status: string; message?: string }>(
+			`/plan-fact/start`,
+			{
+				start_date,
+				end_date,
+				budget_version,
+			}
+		)
+		return response.data
+	}
+
+	async getStatus() {
+		const response = await api.get<{ is_running: boolean; status: string }>(
+			`/plan-fact/status`
+		)
+		return response.data
+	}
 }
 
 export const planFactService = new PlanFactService()
