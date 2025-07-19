@@ -43,13 +43,21 @@ export function useMainTableFilters() {
 export function useTopDeviations(
 	startDate: string,
 	endDate: string,
+	budgetType: { key: string; label: string } | undefined,
 	budgetVersion?: string
 ) {
 	return useQuery({
-		queryKey: ['top-deviations', startDate, endDate, budgetVersion],
-		queryFn: () =>
-			planFactService.getTopDeviations(startDate, endDate, budgetVersion),
-		enabled: !!startDate && !!endDate,
+		queryKey: ['top-deviations', startDate, endDate, budgetType, budgetVersion],
+		queryFn: () => {
+			if (!startDate || !endDate || !budgetType) return
+			return planFactService.getTopDeviations(
+				startDate,
+				endDate,
+				budgetType,
+				budgetVersion
+			)
+		},
+		enabled: !!startDate && !!endDate && !!budgetType,
 		refetchOnWindowFocus: false,
 	})
 }
@@ -73,9 +81,15 @@ export function useStartPlanFact() {
 export function useGetPlanFactStatus() {
 	return useQuery({
 		queryKey: ['get plan-fact status'],
-		queryFn: async () => {
-			return await planFactService.getStatus()
-		},
+		queryFn: planFactService.getStatus,
+		refetchOnWindowFocus: false,
+	})
+}
+
+export function useGetBudgetTypes() {
+	return useQuery({
+		queryKey: ['get budget types'],
+		queryFn: planFactService.getBudgetTypes,
 		refetchOnWindowFocus: false,
 	})
 }

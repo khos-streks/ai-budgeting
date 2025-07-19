@@ -73,11 +73,13 @@ class PlanFactService {
 	async getTopDeviations(
 		startDate: string,
 		endDate: string,
+		budgetType: { key: string; label: string },
 		budgetVersion?: string
 	) {
 		const params = new URLSearchParams({
 			start_date: startDate,
 			end_date: endDate,
+			logistic_type: budgetType?.key
 		})
 
 		if (budgetVersion) {
@@ -119,6 +121,13 @@ class PlanFactService {
 	async getStatus() {
 		const response = await api.get<{ is_running: boolean; status: string }>(
 			`/plan-fact/status`
+		)
+		return response.data
+	}
+
+	async getBudgetTypes() {
+		const response = await api.get<{ key: string; label: string }[]>(
+			'/plan-fact/budget-types'
 		)
 		return response.data
 	}

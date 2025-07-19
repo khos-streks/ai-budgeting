@@ -33,8 +33,6 @@ export function StartPlanFact() {
 		refetch: refetchStatus,
 	} = useGetPlanFactStatus()
 
-	console.log(status)
-
 	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
 	const [showStartCalendar, setShowStartCalendar] = useState(false)
 	const [showEndCalendar, setShowEndCalendar] = useState(false)
@@ -111,19 +109,33 @@ export function StartPlanFact() {
 								</div>
 							</>
 						) : isSuccess && data ? (
-							<div className='space-y-2 p-4 rounded-md border bg-muted'>
-								<p className='text-sm text-muted-foreground'>
-									<b>Статус:</b> {data.status}
-								</p>
-								<p className='text-sm text-muted-foreground'>
-									<b>Повідомлення:</b> {data.message}
-								</p>
-							</div>
+							<>
+								<div className='space-y-2 p-4 rounded-md border bg-muted'>
+									<p className='text-sm text-muted-foreground'>
+										<b>Статус:</b> {data.status}
+									</p>
+									<p className='text-sm text-muted-foreground'>
+										<b>Повідомлення:</b> {data.message}
+									</p>
+								</div>
+								<div className='pt-2'>
+									<Button
+										variant='outline'
+										className='w-full flex items-center gap-2'
+										onClick={() => refetchStatus()}
+									>
+										<RotateCcw className='w-4 h-4' />
+										Оновити дані
+									</Button>
+								</div>
+							</>
 						) : (
 							<>
 								{/* Start Date Picker */}
 								<div className='relative'>
-									<Label htmlFor='start-date' className='mb-2'>Дата початку</Label>
+									<Label htmlFor='start-date' className='mb-2'>
+										Дата початку
+									</Label>
 									<div className='flex items-center'>
 										<Input
 											id='start-date'
@@ -155,7 +167,9 @@ export function StartPlanFact() {
 
 								{/* End Date Picker */}
 								<div className='relative'>
-									<Label htmlFor='end-date' className='mb-2'>Дата завершення</Label>
+									<Label htmlFor='end-date' className='mb-2'>
+										Дата завершення
+									</Label>
 									<div className='flex items-center'>
 										<Input
 											id='end-date'
@@ -191,7 +205,7 @@ export function StartPlanFact() {
 										Завантаження версій бюджету...
 									</p>
 								) : budgetVersions?.length > 0 ? (
-									<div>
+									<div className='w-full'>
 										<Label className='mb-2'>Версія бюджету</Label>
 										<Select
 											onValueChange={value =>
@@ -205,7 +219,7 @@ export function StartPlanFact() {
 											<SelectContent>
 												{budgetVersions.map((v: any) => (
 													<SelectItem key={v.id} value={v.id.toString()}>
-														{v.name}
+														{v.version} ({v.date_from} - {v.date_to})
 													</SelectItem>
 												))}
 											</SelectContent>
