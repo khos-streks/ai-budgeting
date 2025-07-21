@@ -146,11 +146,11 @@ export function useGetSummaryReport(
 	return useQuery({
 		queryKey: ['get summary report', startDate, endDate, budgetVersion],
 		queryFn: () => {
-			if (startDate && endDate) {
+			if (startDate && endDate && budgetVersion) {
 				return planFactService.getSummaryReport(startDate, endDate, budgetVersion)
 			}
 		},
 		refetchOnWindowFocus: false,
-		enabled: !!startDate && !!endDate,
+		enabled: !!startDate && !!endDate && !!budgetVersion,
 	})
 }

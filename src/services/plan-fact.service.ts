@@ -181,8 +181,17 @@ class PlanFactService {
 		end_date: string,
 		budget_version?: number
 	) {
+		const params = new URLSearchParams({
+			start_date,
+			end_date,
+		})
+
+		if (budget_version) {
+			params.append('budget_version', budget_version.toString())
+		}
+		
 		const response = await api.get<ISummaryReport>(
-			`/plan-fact/summary-report?start_date=${start_date}&end_date=${end_date}&budget_version=${budget_version}`
+			`/plan-fact/summary-report?${params.toString()}`
 		)
 
 		return response.data

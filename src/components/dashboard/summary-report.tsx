@@ -37,36 +37,23 @@ export function SummaryReport() {
 				<div>
 					<h3 className='text-lg font-semibold mb-4'>Основні висновки:</h3>
 					<ul className='list-disc pl-5 space-y-2'>
-						<li>
-							Загальне виконання плану на рівні {data.execution_percent}%, що на
-							5% нижче цільового показника
-						</li>
-						<li>
-							Найбільше відхилення в категорії "Виробництво" (
-							{data.top_negative_deviation.deviation_percent}%)
-						</li>
-						<li>
-							Перевиконання плану в категорії "Продажі" (+
-							{data.top_positive_deviation.deviation_percent}%)
-						</li>
-						<li>
-							Виявлено 3 аномалії в витратах, що потребують додаткового аналізу
-						</li>
-					</ul>
-				</div>
-
-				<div>
-					<h3 className='text-lg font-semibold mb-4'>Рекомендації:</h3>
-					<ul className='list-disc pl-5 space-y-2'>
-						{data.recommendations.split('\n').map((rec, idx) => (
-							<li key={idx}>{rec}</li>
+						<li>✅ Загальне виконання плану {data.execution_percent}%</li>
+						{data.main_causes.map((cause, idx) => (
+							<li key={idx}>{cause}</li>
 						))}
 					</ul>
 				</div>
 
+				<div className='flex items-center gap-2 flex-wrap'>
+					<h3 className='text-lg font-semibold'>Рекомендація:</h3>
+					<span>{data.recommendations}</span>
+				</div>
+
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 					<div>
-						<h3 className='text-lg font-semibold mb-2'>Найбільше позитивне відхилення</h3>
+						<h3 className='text-lg font-semibold mb-2'>
+							Найбільше позитивне відхилення
+						</h3>
 						<div className='bg-green-50 rounded p-3'>
 							<div className='font-medium'>
 								{data.top_positive_deviation.budget_item}
@@ -94,7 +81,9 @@ export function SummaryReport() {
 					</div>
 
 					<div>
-						<h3 className='text-lg font-semibold mb-2'>Найбільше негативне відхилення</h3>
+						<h3 className='text-lg font-semibold mb-2'>
+							Найбільше негативне відхилення
+						</h3>
 						<div className='bg-red-50 rounded p-3'>
 							<div className='font-medium'>
 								{data.top_negative_deviation.budget_item}
