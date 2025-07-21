@@ -16,7 +16,7 @@ export function PlanFactSummary() {
 	const { data, isLoading: isPlanFactLoading } = usePlanFactSummary(
 		dateRange.startDate,
 		dateRange.endDate,
-		dateRange.budgetVersion
+		dateRange.budgetVersion?.version
 	)
 
 	const isLoading = isBudgetCountsLoading || isPlanFactLoading

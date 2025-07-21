@@ -30,7 +30,7 @@ export function SummaryTable() {
 	const { data: fileData, isLoading } = useSummaryData(
 		dateRange.startDate,
 		dateRange.endDate,
-		dateRange.budgetVersion,
+		dateRange.budgetVersion?.version,
 		filters
 	)
 

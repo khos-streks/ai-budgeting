@@ -5,7 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 export function usePlanFactSummary(
 	startDate: string,
 	endDate: string,
-	budgetVersion?: string
+	budgetVersion?: number
 ) {
 	return useQuery({
 		queryKey: ['plan-fact-summary', startDate, endDate, budgetVersion],
@@ -19,7 +19,7 @@ export function usePlanFactSummary(
 export function usePlanFactTable(
 	startDate: string,
 	endDate: string,
-	budgetVersion?: string,
+	budgetVersion?: number,
 	filters?: PlanFactFilters
 ) {
 	return useQuery({
@@ -36,7 +36,14 @@ export function useMainTableFilters() {
 		queryKey: ['main-table-filters'],
 		queryFn: () => planFactService.getMainTableFilters(),
 		refetchOnWindowFocus: false,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+	})
+}
+
+export function useKeyIndicatorsFilters() {
+	return useQuery({
+		queryKey: ['key-indicators-filters'],
+		queryFn: () => planFactService.getKeyIndicatorsFilters(),
+		refetchOnWindowFocus: false,
 	})
 }
 
@@ -44,7 +51,7 @@ export function useTopDeviations(
 	startDate: string,
 	endDate: string,
 	budgetType: { key: string; label: string } | undefined,
-	budgetVersion?: string
+	budgetVersion?: number
 ) {
 	return useQuery({
 		queryKey: ['top-deviations', startDate, endDate, budgetType, budgetVersion],
@@ -91,5 +98,59 @@ export function useGetBudgetTypes() {
 		queryKey: ['get budget types'],
 		queryFn: planFactService.getBudgetTypes,
 		refetchOnWindowFocus: false,
+	})
+}
+
+export function useGetLogisticsTypes() {
+	return useQuery({
+		queryKey: ['get logistics types'],
+		queryFn: planFactService.getLogisticsTypes,
+		refetchOnWindowFocus: false,
+	})
+}
+
+export function useGetQuantityMetrics(budgetType: string | undefined) {
+	return useQuery({
+		queryKey: ['get quantity metrics', budgetType],
+		queryFn: () => {
+			if (budgetType) {
+				return planFactService.getQuantityMetrics(budgetType)
+			}
+		},
+		refetchOnWindowFocus: false,
+		enabled: !!budgetType,
+	})
+}
+
+export function useGetKeyIndicators(
+	version_id: number | undefined,
+	indicator: string | undefined
+) {
+	return useQuery({
+		queryKey: ['get key indicators', version_id, indicator],
+		queryFn: () => {
+			if (version_id && indicator) {
+				return planFactService.getKeyIndicators(version_id, indicator)
+			}
+		},
+		refetchOnWindowFocus: false,
+		enabled: !!version_id && !!indicator,
+	})
+}
+
+export function useGetSummaryReport(
+	startDate: string,
+	endDate: string,
+	budgetVersion?: number
+) {
+	return useQuery({
+		queryKey: ['get summary report', startDate, endDate, budgetVersion],
+		queryFn: () => {
+			if (startDate && endDate) {
+				return planFactService.getSummaryReport(startDate, endDate, budgetVersion)
+			}
+		},
+		refetchOnWindowFocus: false,
+		enabled: !!startDate && !!endDate,
 	})
 }

@@ -3,22 +3,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDateContext } from '@/contexts/date-context'
-import { useGetBudgetTypes, useTopDeviations } from '@/hooks/usePlanFact'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select'
+import {
+	useGetBudgetTypes,
+	useGetLogisticsTypes,
+	useGetQuantityMetrics,
+	useTopDeviations,
+} from '@/hooks/usePlanFact'
 import { useEffect, useState } from 'react'
+import { ExcelHtmlViewer } from '../ui/excel-viewer'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select'
 
 export const TopDeviations = () => {
 	const { dateRange } = useDateContext()
 	const [currentBudgetType, setCurrentBudgetType] = useState<
 		{ key: string; label: string } | undefined
 	>(undefined)
+	const [selectedLogisticType, setSelectedLogisticType] = useState<
+		string | undefined
+	>(undefined)
 	const { data: budgetTypes, isLoading: isBudgetTypesLoading } =
 		useGetBudgetTypes()
+	const { data: logisticTypes, isLoading: isLogisticTypesLoading } =
+		useGetLogisticsTypes()
 	const { data, isLoading: isTopDeviationsLoading } = useTopDeviations(
 		dateRange.startDate,
 		dateRange.endDate,
 		currentBudgetType,
-		dateRange.budgetVersion
+		dateRange.budgetVersion?.version
 	)
 
 	useEffect(() => {
@@ -26,6 +37,15 @@ export const TopDeviations = () => {
 			setCurrentBudgetType(budgetTypes[0])
 		}
 	}, [budgetTypes])
+
+	useEffect(() => {
+		if (logisticTypes?.length) {
+			setSelectedLogisticType(logisticTypes[0].key)
+		}
+	}, [logisticTypes])
+
+	const { data: quantityMetricsXlsx, isLoading: isQuantityMetricsLoading } =
+		useGetQuantityMetrics(selectedLogisticType)
 
 	const isLoading = isBudgetTypesLoading || isTopDeviationsLoading
 
@@ -56,7 +76,9 @@ export const TopDeviations = () => {
 								setCurrentBudgetType(budgetTypes?.find(i => i.key === e))
 							}}
 						>
-							<SelectTrigger>{budgetTypes?.[0].label}</SelectTrigger>
+							<SelectTrigger>
+								{currentBudgetType?.label ?? budgetTypes?.[0].label}
+							</SelectTrigger>
 							<SelectContent>
 								{budgetTypes?.map((bt, i) => (
 									<SelectItem value={bt.key} key={bt.key}>
@@ -91,7 +113,7 @@ export const TopDeviations = () => {
 								) : (
 									<div>
 										Немає жодної інформації про негативні відхилення в "
-										{currentBudgetType?.label}"
+										{currentBudgetType?.label}`
 									</div>
 								)}
 							</TabsContent>
@@ -121,6 +143,37 @@ export const TopDeviations = () => {
 								)}
 							</TabsContent>
 						</Tabs>
+						{/* XLSX quantity metrics rendering with logistic type select */}
+						<div className='mt-6'>
+							<div className='font-semibold mb-2'>
+								Кількісні показники (Excel)
+							</div>
+							<div className='mb-2 max-w-xs'>
+								<Select
+									value={selectedLogisticType}
+									onValueChange={setSelectedLogisticType}
+								>
+									<SelectTrigger>
+										{logisticTypes?.find(l => l.key === selectedLogisticType)
+											?.label || 'Оберіть тип логістики'}
+									</SelectTrigger>
+									<SelectContent>
+										{logisticTypes?.map(l => (
+											<SelectItem value={l.key} key={l.key}>
+												{l.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+							{isQuantityMetricsLoading ? (
+								<div>Завантаження метрик...</div>
+							) : quantityMetricsXlsx ? (
+								<ExcelHtmlViewer file={quantityMetricsXlsx} />
+							) : (
+								<div>Немає кількісних метрик для цього типу логістики</div>
+							)}
+						</div>
 					</>
 				) : (
 					<div>Помилка завантаження даних. Спробуйте будь ласка пізніше</div>

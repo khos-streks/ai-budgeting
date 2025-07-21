@@ -1,11 +1,12 @@
 import { api } from '@/lib/axios'
+import { IBudgetVersion } from '@/typing/budget-version'
 import { ConsolidatedFilters } from '@/typing/filters'
 
 class BudgetingService {
 	async getConsolidated(
 		startDate: string,
 		endDate: string,
-		budgetVersion?: string,
+		budgetVersion?: number,
 		filters?: ConsolidatedFilters
 	) {
 		const params = new URLSearchParams({
@@ -14,7 +15,7 @@ class BudgetingService {
 		})
 
 		if (budgetVersion) {
-			params.append('budget_version', budgetVersion)
+			params.append('budget_version', budgetVersion.toString())
 		}
 
 		// Add filter parameters
@@ -38,7 +39,7 @@ class BudgetingService {
 	}
 
 	async getVersions(startDate: string, endDate: string) {
-		const response = await api.get(
+		const response = await api.get<IBudgetVersion[]>(
 			`/budgeting/budget-versions?date_from=${startDate}&date_to=${endDate}`
 		)
 		return response.data

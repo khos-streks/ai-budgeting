@@ -14,7 +14,7 @@ import {
 	startOfYear,
 } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import { Button } from '../ui/button'
@@ -29,6 +29,7 @@ import {
 	SelectValue,
 } from '../ui/select'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
+import { IBudgetVersion } from '@/typing/budget-version'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
@@ -40,9 +41,14 @@ export function InfoPicker() {
 	)
 
 	const [preset, setPreset] = useState<DatePreset>('custom')
-	const [selectedBudgetVersion, setSelectedBudgetVersion] = useState<string>(
-		dateRange.budgetVersion || ''
-	)
+	const [selectedBudgetVersion, setSelectedBudgetVersion] = useState<
+		IBudgetVersion | undefined
+	>(dateRange.budgetVersion || undefined)
+
+	useEffect(() => {
+		setSelectedBudgetVersion(budgetVersions?.[0])
+		setBudgetVersion(budgetVersions?.[0])
+	}, [budgetVersions])
 
 	// UI state for calendar visibility
 	const [showCalendar, setShowCalendar] = useState(false)
@@ -271,16 +277,21 @@ export function InfoPicker() {
 					<div className='space-y-2 flex flex-col'>
 						<Label htmlFor='budget-version'>Версія бюджету</Label>
 						<Select
-							value={selectedBudgetVersion}
-							onValueChange={setSelectedBudgetVersion}
+							value={selectedBudgetVersion?.id.toString()}
+							onValueChange={id => {
+								setSelectedBudgetVersion(
+									budgetVersions?.find(version => version.id === Number(id))
+								)
+							}}
 						>
 							<SelectTrigger className='w-full'>
 								<SelectValue placeholder='Оберіть версію бюджету' />
 							</SelectTrigger>
 							<SelectContent>
-								{budgetVersions?.map((version: any) => (
-									<SelectItem key={version.id} value={version.id}>
-										{version.name || version.version || `Версія ${version.id}`}
+								{budgetVersions?.map((version: IBudgetVersion) => (
+									<SelectItem key={version.id} value={version.toString()}>
+										{version.version} ({version.date_from} - {version.date_to}
+										)
 									</SelectItem>
 								))}
 							</SelectContent>

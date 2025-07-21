@@ -1,5 +1,6 @@
 'use client'
 
+import { IBudgetVersion } from '@/typing/budget-version'
 import {
 	createContext,
 	Dispatch,
@@ -12,19 +13,19 @@ import {
 type DateRange = {
 	startDate: string
 	endDate: string
-	budgetVersion?: string
+	budgetVersion?: IBudgetVersion
 }
 
 interface DateContextType {
 	dateRange: DateRange
 	setDateRange: Dispatch<SetStateAction<DateRange>>
-	setBudgetVersion: (version: string) => void
+	setBudgetVersion: (version: IBudgetVersion | undefined) => void
 }
 
 const defaultDateRange = {
 	startDate: '2025-01-01',
 	endDate: '2025-06-30',
-	budgetVersion: '',
+	budgetVersion: undefined,
 }
 
 const DateContext = createContext<DateContextType | undefined>(undefined)
@@ -32,7 +33,7 @@ const DateContext = createContext<DateContextType | undefined>(undefined)
 export function DateProvider({ children }: { children: ReactNode }) {
 	const [dateRange, setDateRange] = useState<DateRange>(defaultDateRange)
 
-	const setBudgetVersion = (version: string) => {
+	const setBudgetVersion = (version: IBudgetVersion | undefined) => {
 		setDateRange(prev => ({
 			...prev,
 			budgetVersion: version,

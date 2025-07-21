@@ -1,5 +1,6 @@
 import { api } from '@/lib/axios'
 import { FilterOptions, PlanFactFilters } from '@/typing/filters'
+import { ISummaryReport } from '@/typing/summary-report'
 
 interface AnomalyData {
 	[category: string]: string[] | object[] | any
@@ -9,7 +10,7 @@ class PlanFactService {
 	async getPlanFact(
 		startDate: string,
 		endDate: string,
-		budgetVersion?: string
+		budgetVersion?: number
 	) {
 		const params = new URLSearchParams({
 			start_date: startDate,
@@ -17,7 +18,7 @@ class PlanFactService {
 		})
 
 		if (budgetVersion) {
-			params.append('budget_version', budgetVersion)
+			params.append('budget_version', budgetVersion.toString())
 		}
 
 		return (
@@ -34,7 +35,7 @@ class PlanFactService {
 	async getMainTable(
 		startDate: string,
 		endDate: string,
-		budgetVersion?: string,
+		budgetVersion?: number,
 		filters?: PlanFactFilters
 	) {
 		const params = new URLSearchParams({
@@ -43,7 +44,7 @@ class PlanFactService {
 		})
 
 		if (budgetVersion) {
-			params.append('budget_version', budgetVersion)
+			params.append('budget_version', budgetVersion.toString())
 		}
 
 		// Add filter parameters
@@ -70,20 +71,28 @@ class PlanFactService {
 		return (await api.get<FilterOptions>('/plan-fact/filters/main-table')).data
 	}
 
+	async getKeyIndicatorsFilters() {
+		return (
+			await api.get<{ indicator: string[] }>(
+				'/plan-fact/filters/key-indicators'
+			)
+		).data
+	}
+
 	async getTopDeviations(
 		startDate: string,
 		endDate: string,
 		budgetType: { key: string; label: string },
-		budgetVersion?: string
+		budgetVersion?: number
 	) {
 		const params = new URLSearchParams({
 			start_date: startDate,
 			end_date: endDate,
-			logistic_type: budgetType?.key
+			logistic_type: budgetType?.key,
 		})
 
 		if (budgetVersion) {
-			params.append('budget_version', budgetVersion)
+			params.append('budget_version', budgetVersion.toString())
 		}
 
 		return (
@@ -129,6 +138,53 @@ class PlanFactService {
 		const response = await api.get<{ key: string; label: string }[]>(
 			'/plan-fact/budget-types'
 		)
+		return response.data
+	}
+
+	async getLogisticsTypes() {
+		const response = await api.get<{ key: string; label: string }[]>(
+			'/plan-fact/logistics-types'
+		)
+		return response.data
+	}
+
+	async getQuantityMetrics(budgetType: string) {
+		const response = await api.get(
+			`/plan-fact/quantity-metrics?type=${budgetType}`,
+			{
+				responseType: 'blob',
+				headers: {
+					Accept:
+						'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				},
+			}
+		)
+		return response.data
+	}
+
+	async getKeyIndicators(version_id: number, indicator: string) {
+		const response = await api.get(
+			`/plan-fact/key-indicators?version_id=${version_id}&indicator=${indicator}`,
+			{
+				responseType: 'blob',
+				headers: {
+					Accept:
+						'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+				},
+			}
+		)
+		return response.data
+	}
+
+	async getSummaryReport(
+		start_date: string,
+		end_date: string,
+		budget_version?: number
+	) {
+		const response = await api.get<ISummaryReport>(
+			`/plan-fact/summary-report?start_date=${start_date}&end_date=${end_date}&budget_version=${budget_version}`
+		)
+
 		return response.data
 	}
 }

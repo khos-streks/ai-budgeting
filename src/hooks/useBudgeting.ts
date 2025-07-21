@@ -5,7 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 export function useSummaryData(
 	startDate: string,
 	endDate: string,
-	budgetVersion?: string,
+	budgetVersion?: number,
 	filters?: ConsolidatedFilters
 ) {
 	return useQuery({

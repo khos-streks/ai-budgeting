@@ -33,7 +33,7 @@ export function PlanFactTable() {
 	const { data: fileData, isLoading } = usePlanFactTable(
 		dateRange.startDate,
 		dateRange.endDate,
-		dateRange.budgetVersion,
+		dateRange.budgetVersion?.version,
 		filters as PlanFactFilters
 	)
 

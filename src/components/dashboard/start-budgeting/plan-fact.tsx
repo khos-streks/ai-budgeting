@@ -23,6 +23,7 @@ import { DayPicker } from 'react-day-picker'
 import { CalendarIcon, Loader2Icon, RotateCcw } from 'lucide-react'
 import { useBudgetVersions } from '@/hooks/useBudgeting'
 import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
+import { IBudgetVersion } from '@/typing/budget-version'
 
 export function StartPlanFact() {
 	const { mutateAsync: start, isPending, isSuccess, data } = useStartPlanFact()
@@ -38,8 +39,8 @@ export function StartPlanFact() {
 	const [showEndCalendar, setShowEndCalendar] = useState(false)
 
 	const [currentBudgetVersion, setCurrentBudgetVersion] = useState<
-		number | null
-	>(null)
+		IBudgetVersion | undefined
+	>(undefined)
 	const [fetchVersions, setFetchVersions] = useState(false)
 
 	const formattedDates = {
@@ -67,7 +68,11 @@ export function StartPlanFact() {
 
 	const handleSubmit = async () => {
 		try {
-			await start({ ...formattedDates, budgetVersion: currentBudgetVersion })
+			if (dates.start > dates.end || isPending || !currentBudgetVersion) return
+			await start({
+				...formattedDates,
+				budgetVersion: currentBudgetVersion.version,
+			})
 			await refetchStatus()
 		} catch {}
 	}
@@ -204,20 +209,22 @@ export function StartPlanFact() {
 									<p className='text-sm text-muted-foreground'>
 										Завантаження версій бюджету...
 									</p>
-								) : budgetVersions?.length > 0 ? (
+								) : budgetVersions && budgetVersions?.length > 0 ? (
 									<div className='w-full'>
 										<Label className='mb-2'>Версія бюджету</Label>
 										<Select
 											onValueChange={value =>
-												setCurrentBudgetVersion(Number(value))
+												setCurrentBudgetVersion(
+													budgetVersions?.find(v => v.id.toString() === value)
+												)
 											}
-											value={currentBudgetVersion?.toString() || ''}
+											value={currentBudgetVersion?.id?.toString() || ''}
 										>
 											<SelectTrigger>
 												<SelectValue placeholder='Оберіть версію бюджету' />
 											</SelectTrigger>
 											<SelectContent>
-												{budgetVersions.map((v: any) => (
+												{budgetVersions?.map((v: any) => (
 													<SelectItem key={v.id} value={v.id.toString()}>
 														{v.version} ({v.date_from} - {v.date_to})
 													</SelectItem>

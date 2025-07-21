@@ -1,12 +1,14 @@
 import { AiAssistant } from '@/components/dashboard/ai-assistant'
 import { FilesDownloading } from '@/components/dashboard/files-downloading'
 import { InfoPicker } from '@/components/dashboard/info-picker'
+import { KeyIndicators } from '@/components/dashboard/key-indicators'
 import { PlanFactSummary } from '@/components/dashboard/plan-fact/plan-fact-summary'
 import { PlanFactTable } from '@/components/dashboard/plan-fact/plan-fact-table'
 import { StartBudgeting } from '@/components/dashboard/start-budgeting'
 import { SummaryTable } from '@/components/dashboard/summary-table'
 import { TopDeviations } from '@/components/dashboard/top-deviations'
 import { DateProvider } from '@/contexts/date-context'
+import { SummaryReport } from '@/components/dashboard/summary-report'
 
 export default function Home() {
 	return (
@@ -23,7 +25,9 @@ export default function Home() {
 						<StartBudgeting />
 						<PlanFactTable />
 						<SummaryTable />
+						<KeyIndicators />
 						<TopDeviations />
+						<SummaryReport />
 					</div>
 				</DateProvider>
 			</main>
