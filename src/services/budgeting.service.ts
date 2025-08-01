@@ -28,7 +28,7 @@ class BudgetingService {
 		}
 
 		return (
-			await api.get(`/plan-fact/main-table?${params.toString()}`, {
+			await api.get(`/budgeting/consolidated?${params.toString()}`, {
 				responseType: 'blob',
 				headers: {
 					Accept:
