@@ -8,8 +8,10 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
 import { cn } from '@/lib/utils'
+import { useDateContext } from '@/contexts/date-context'
 
 export function AiAssistant({ className }: { className?: string }) {
+	const { dateRange } = useDateContext()
 	const [messages, setMessages] = useState<
 		{
 			role: 'user' | 'assistant'
@@ -31,7 +33,11 @@ export function AiAssistant({ className }: { className?: string }) {
 
 		setIsThinking(true)
 
-		await askAi(message)
+		await askAi({
+			message,
+			end_date: dateRange.endDate,
+			start_date: dateRange.startDate,
+		})
 			.then(res => {
 				setMessages([
 					...updatedMessages,
