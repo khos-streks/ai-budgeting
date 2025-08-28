@@ -52,6 +52,7 @@ export function InfoPicker() {
 
 	// UI state for calendar visibility
 	const [showCalendar, setShowCalendar] = useState(false)
+	const [calendarType, setCalendarType] = useState<'start' | 'end' | null>(null)
 
 	// Local state for input values (pending changes)
 	const [inputValues, setInputValues] = useState({
@@ -127,26 +128,6 @@ export function InfoPicker() {
 		setPreset('custom')
 	}
 
-	// Handle manual input changes
-	const handleInputChange = (
-		e: React.ChangeEvent<HTMLInputElement>,
-		type: 'start' | 'end'
-	) => {
-		const value = e.target.value
-
-		// Update input value
-		setInputValues(prev => ({ ...prev, [type]: value }))
-
-		// Set preset to custom when manually editing dates
-		setPreset('custom')
-
-		// Parse and validate date
-		const parsedDate = parseDate(value)
-		if (parsedDate && isValid(parsedDate)) {
-			setDates(prev => ({ ...prev, [type]: parsedDate }))
-		}
-	}
-
 	// Apply date changes to context
 	const applyDates = () => {
 		setDateRange({
@@ -162,8 +143,9 @@ export function InfoPicker() {
 	}
 
 	// Toggle calendar visibility
-	const toggleCalendar = () => {
+	const toggleCalendar = (type: 'start' | 'end') => {
 		setShowCalendar(prev => !prev)
+		setCalendarType(type)
 	}
 
 	// Helper to render a date input field with calendar
@@ -179,15 +161,15 @@ export function InfoPicker() {
 						type='text'
 						placeholder='YYYY-MM-DD'
 						value={inputValues[type]}
-						onChange={e => handleInputChange(e, type)}
-						className='pr-10'
+						disabled
+						className='pr-10 disabled:opacity-100'
 					/>
 					<Button
 						type='button'
 						variant='ghost'
 						size='icon'
 						className='absolute right-0 h-full'
-						onClick={toggleCalendar}
+						onClick={() => toggleCalendar(type)}
 					>
 						<CalendarIcon className='h-4 w-4' />
 					</Button>
@@ -250,12 +232,17 @@ export function InfoPicker() {
 				</div>
 
 				{/* Calendar popup */}
-				{showCalendar && (
-					<Card className='absolute z-10 mt-1'>
+				{showCalendar && calendarType && (
+					<Card className='absolute z-10 top-1/2 -translate-y-1/4 px-3'>
+						{calendarType === 'start' ? (
+							<>Вибір початкової дати</>
+						) : (
+							<>Вибір кінцевої дати</>
+						)}
 						<DayPicker
 							mode='single'
 							selected={dates.start}
-							onDayClick={day => handleDaySelect(day, 'start')}
+							onDayClick={day => handleDaySelect(day, calendarType)}
 							defaultMonth={dates.start}
 							footer={
 								<div className='flex justify-end p-2'>
@@ -290,8 +277,7 @@ export function InfoPicker() {
 							<SelectContent>
 								{budgetVersions?.map((version: IBudgetVersion) => (
 									<SelectItem key={version.id} value={version.toString()}>
-										{version.version} ({version.date_from} - {version.date_to}
-										)
+										{version.version} ({version.date_from} - {version.date_to})
 									</SelectItem>
 								))}
 							</SelectContent>
