@@ -54,11 +54,13 @@ export function AdvancedFilters({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>Всі бюджети</SelectItem>
-						{filterOptions?.budget?.map(budget => (
-							<SelectItem key={budget} value={budget}>
-								{budget}
-							</SelectItem>
-						))}
+						{filterOptions?.budget
+							?.filter(i => !!i.length)
+							.map(budget => (
+								<SelectItem key={budget} value={budget}>
+									{budget}
+								</SelectItem>
+							))}
 					</SelectContent>
 				</Select>
 			</div>
@@ -75,11 +77,13 @@ export function AdvancedFilters({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>Всі статті</SelectItem>
-						{filterOptions?.budget_item?.map(item => (
-							<SelectItem key={item} value={item}>
-								{item}
-							</SelectItem>
-						))}
+						{filterOptions?.budget_item
+							?.filter(i => !!i.length)
+							?.map(item => (
+								<SelectItem key={item} value={item}>
+									{item}
+								</SelectItem>
+							))}
 					</SelectContent>
 				</Select>
 			</div>
@@ -97,11 +101,13 @@ export function AdvancedFilters({
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value='all'>Всі об'єкти</SelectItem>
-							{filterOptions?.budget_object?.map(object => (
-								<SelectItem key={object} value={object}>
-									{object}
-								</SelectItem>
-							))}
+							{filterOptions?.budget_object
+								?.filter(i => !!i.length)
+								?.map(object => (
+									<SelectItem key={object} value={object}>
+										{object}
+									</SelectItem>
+								))}
 						</SelectContent>
 					</Select>
 				</div>
@@ -119,11 +125,13 @@ export function AdvancedFilters({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>Всі ЦФО</SelectItem>
-						{filterOptions?.cfo?.map(cfo => (
-							<SelectItem key={cfo} value={cfo}>
-								{cfo}
-							</SelectItem>
-						))}
+						{filterOptions?.cfo
+							?.filter(i => !!i.length)
+							?.map(cfo => (
+								<SelectItem key={cfo} value={cfo}>
+									{cfo}
+								</SelectItem>
+							))}
 					</SelectContent>
 				</Select>
 			</div>
@@ -140,11 +148,13 @@ export function AdvancedFilters({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>Всі організації</SelectItem>
-						{filterOptions?.org?.map(org => (
-							<SelectItem key={org} value={org}>
-								{org}
-							</SelectItem>
-						))}
+						{filterOptions?.org
+							?.filter(i => !!i.length)
+							?.map(org => (
+								<SelectItem key={org} value={org}>
+									{org}
+								</SelectItem>
+							))}
 					</SelectContent>
 				</Select>
 			</div>
@@ -161,11 +171,13 @@ export function AdvancedFilters({
 					</SelectTrigger>
 					<SelectContent>
 						<SelectItem value='all'>Всі макростатті</SelectItem>
-						{filterOptions?.macro_item?.map(macroItem => (
-							<SelectItem key={macroItem} value={macroItem}>
-								{macroItem}
-							</SelectItem>
-						))}
+						{filterOptions?.macro_item
+							?.filter(i => !!i.length)
+							?.map(macroItem => (
+								<SelectItem key={macroItem} value={macroItem}>
+									{macroItem}
+								</SelectItem>
+							))}
 					</SelectContent>
 				</Select>
 			</div>
@@ -182,7 +194,7 @@ export function AdvancedFilters({
 							<SelectValue placeholder='Виберіть поле для сортування' />
 						</SelectTrigger>
 						<SelectContent>
-							{SORT_OPTIONS.map(option => (
+							{SORT_OPTIONS?.filter(i => !!i.value).map(option => (
 								<SelectItem key={option.value} value={option.value}>
 									{option.label}
 								</SelectItem>
@@ -204,7 +216,7 @@ export function AdvancedFilters({
 							<SelectValue placeholder='Виберіть порядок' />
 						</SelectTrigger>
 						<SelectContent>
-							{SORT_ORDER_OPTIONS.map(option => (
+							{SORT_ORDER_OPTIONS?.filter(i => !!i.value).map(option => (
 								<SelectItem key={option.value} value={option.value}>
 									{option.label}
 								</SelectItem>
