@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
 import { cn } from '@/lib/utils'
 import { useDateContext } from '@/contexts/date-context'
-import clsx from 'clsx'
 
 export function AiAssistant({ className }: { className?: string }) {
 	const [size, setSize] = useState<'compact' | 'expanded'>('compact')
@@ -70,16 +69,15 @@ export function AiAssistant({ className }: { className?: string }) {
 
 	return (
 		<div
-			className={clsx({
+			className={cn('fixed inset-0 w-full h-full p-2 bg-white/80 z-[10000]', {
 				contents: size === 'compact',
-				'fixed inset-0 w-full h-full p-2 bg-white/80 z-[10000]':
-					size === 'expanded',
 			})}
 		>
 			<Card
 				className={cn(
-					'h-[80vh] mb-6 overflow-hidden flex flex-col',
-					className
+					'h-[80vh] mb-6 overflow-hidden relative flex flex-col',
+					className,
+					{ 'h-full': size === 'expanded' }
 				)}
 			>
 				<CardHeader className='pb-2 flex-shrink-0'>
