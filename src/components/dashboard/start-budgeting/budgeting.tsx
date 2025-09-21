@@ -15,10 +15,15 @@ import { format } from 'date-fns'
 import { CalendarIcon, Loader2Icon, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { DayPicker } from 'react-day-picker'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover'
+import { DatePicker } from '@/components/ui/date-picker'
 
 export function StartBudgeting() {
 	const { mutateAsync: start, isPending, isSuccess, data } = useStartBudgeting()
-
 	const {
 		data: status,
 		isLoading: isStatusLoading,
@@ -95,102 +100,21 @@ export function StartBudgeting() {
 								</p>
 							</div>
 						) : (
-							<>
-								{/* Start Date Picker */}
-								<div className='relative'>
-									<Label htmlFor='start-date' className='mb-1 block'>
-										Дата початку
-									</Label>
-									<div className='flex items-center'>
-										<Input
-											id='start-date'
-											type='text'
-											placeholder='YYYY-MM-DD'
-											value={format(dates.start, 'yyyy-MM-dd')}
-											className='pr-10'
-											readOnly
-										/>
-										<Button
-											type='button'
-											variant='ghost'
-											size='icon'
-											className='absolute right-0 h-full'
-											onClick={() => setShowStartCalendar(!showStartCalendar)}
-										>
-											<CalendarIcon className='h-4 w-4' />
-										</Button>
-									</div>
-									{showStartCalendar && (
-										<div className='absolute z-10 mt-1 bg-white border rounded-md shadow-lg'>
-											<DayPicker
-												mode='single'
-												selected={dates.start}
-												onDayClick={day => handleDaySelect(day, 'start')}
-												defaultMonth={dates.start}
-												footer={
-													<div className='flex justify-end p-2'>
-														<Button
-															variant='outline'
-															size='sm'
-															onClick={() => setShowStartCalendar(false)}
-														>
-															Закрити
-														</Button>
-													</div>
-												}
-											/>
-										</div>
-									)}
-								</div>
+							<div className='space-y-4'>
+								<DatePicker
+									id='start-date'
+									label='Дата початку'
+									value={dates.start}
+									onChange={day => handleDaySelect(day, 'start')}
+								/>
 
-								{/* End Date Picker */}
-								<div className='relative'>
-									<Label htmlFor='end-date' className='mb-1 block'>
-										Дата завершення
-									</Label>
-									<div className='flex items-center'>
-										<Input
-											id='end-date'
-											type='text'
-											placeholder='YYYY-MM-DD'
-											value={format(dates.end, 'yyyy-MM-dd')}
-											className='pr-10'
-											readOnly
-										/>
-										<Button
-											type='button'
-											variant='ghost'
-											size='icon'
-											className='absolute right-0 h-full'
-											onClick={() => setShowEndCalendar(!showEndCalendar)}
-										>
-											<CalendarIcon className='h-4 w-4' />
-										</Button>
-									</div>
-									{showEndCalendar && (
-										<div className='absolute z-10 mt-1 bg-white border rounded-md shadow-lg'>
-											<DayPicker
-												mode='single'
-												selected={dates.end}
-												onDayClick={day => handleDaySelect(day, 'end')}
-												defaultMonth={dates.end}
-												footer={
-													<div className='flex justify-end p-2'>
-														<Button
-															variant='outline'
-															size='sm'
-															onClick={() => setShowEndCalendar(false)}
-														>
-															Закрити
-														</Button>
-													</div>
-												}
-											/>
-										</div>
-									)}
-								</div>
+								<DatePicker
+									id='end-date'
+									label='Дата закінчення'
+									value={dates.end}
+									onChange={day => handleDaySelect(day, 'end')}
+								/>
 
-								{/* Submit Button */}
 								<div className='pt-4'>
 									<Button
 										onClick={handleSubmit}
@@ -203,7 +127,7 @@ export function StartBudgeting() {
 										Запустити бюджетування
 									</Button>
 								</div>
-							</>
+							</div>
 						)}
 					</div>
 				</DialogHeader>

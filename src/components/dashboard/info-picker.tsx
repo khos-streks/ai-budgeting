@@ -30,6 +30,9 @@ import {
 } from '../ui/select'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { IBudgetVersion } from '@/typing/budget-version'
+import { StartBudgeting } from './start-budgeting/budgeting'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { DatePicker } from '../ui/date-picker'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
@@ -50,17 +53,11 @@ export function InfoPicker() {
 		setBudgetVersion(budgetVersions?.[0])
 	}, [budgetVersions])
 
-	// UI state for calendar visibility
-	const [showCalendar, setShowCalendar] = useState(false)
-	const [calendarType, setCalendarType] = useState<'start' | 'end' | null>(null)
-
-	// Local state for input values (pending changes)
 	const [inputValues, setInputValues] = useState({
 		start: dateRange.startDate,
 		end: dateRange.endDate,
 	})
 
-	// State for parsed date objects
 	const [dates, setDates] = useState({
 		start: parseDate(dateRange.startDate),
 		end: parseDate(dateRange.endDate),
@@ -71,19 +68,12 @@ export function InfoPicker() {
 		return isValid(parsedDate) ? parsedDate : undefined
 	}
 
-	// Apply date preset
 	const applyDatePreset = (preset: DatePreset) => {
 		setPreset(preset)
-
-		// If custom is selected, we don't need to change the dates
-		if (preset === 'custom') {
-			return
-		}
-
+		if (preset === 'custom') return
 		const now = new Date()
 		let startDate: Date
 		let endDate: Date
-
 		switch (preset) {
 			case 'month':
 				startDate = startOfMonth(now)
@@ -100,35 +90,19 @@ export function InfoPicker() {
 			default:
 				return
 		}
-
 		const formattedStartDate = format(startDate, 'yyyy-MM-dd')
 		const formattedEndDate = format(endDate, 'yyyy-MM-dd')
-
-		setInputValues(prev => ({
-			...prev,
-			start: formattedStartDate,
-			end: formattedEndDate,
-		}))
-		setDates(prev => ({
-			...prev,
-			start: startDate,
-			end: endDate,
-		}))
+		setInputValues({ start: formattedStartDate, end: formattedEndDate })
+		setDates({ start: startDate, end: endDate })
 	}
 
-	// Handle date selection from calendar
 	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
 		const formattedDate = format(day, 'yyyy-MM-dd')
-
-		// Update local state
 		setDates(prev => ({ ...prev, [type]: day }))
 		setInputValues(prev => ({ ...prev, [type]: formattedDate }))
-
-		// Set preset to custom when manually selecting dates
 		setPreset('custom')
 	}
 
-	// Apply date changes to context
 	const applyDates = () => {
 		setDateRange({
 			startDate: inputValues.start,
@@ -137,53 +111,27 @@ export function InfoPicker() {
 		})
 	}
 
-	// Apply budget version to context
 	const applyBudgetVersion = () => {
 		setBudgetVersion(selectedBudgetVersion)
 	}
 
-	// Toggle calendar visibility
-	const toggleCalendar = (type: 'start' | 'end') => {
-		setShowCalendar(prev => !prev)
-		setCalendarType(type)
-	}
-
-	// Helper to render a date input field with calendar
-	const renderDateField = (type: 'start' | 'end', label: string) => {
+	const renderDateField = (
+		type: 'start' | 'end',
+		label: string,
+		selectedDate: Date | undefined
+	) => {
 		return (
-			<div className='relative'>
-				<Label htmlFor={type} className='mb-1 block'>
-					{label}
-				</Label>
-				<div className='flex items-center'>
-					<Input
-						id={type}
-						type='text'
-						placeholder='YYYY-MM-DD'
-						value={inputValues[type]}
-						disabled
-						className='pr-10 disabled:opacity-100'
-					/>
-					<Button
-						type='button'
-						variant='ghost'
-						size='icon'
-						className='absolute right-0 h-full'
-						onClick={() => toggleCalendar(type)}
-					>
-						<CalendarIcon className='h-4 w-4' />
-					</Button>
-				</div>
-			</div>
+			<DatePicker
+				id={`${type}-date`}
+				label={label}
+				onChange={day => handleDaySelect(day, type)}
+				value={selectedDate ?? new Date()}
+			/>
 		)
 	}
 
-	// Get date range summary text based on preset
 	const getDateRangeSummary = () => {
-		if (preset === 'custom') {
-			return null // We'll show the date inputs instead
-		}
-
+		if (preset === 'custom') return null
 		return (
 			<p className='text-sm text-muted-foreground'>
 				Період: {inputValues.start} — {inputValues.end}
@@ -196,7 +144,7 @@ export function InfoPicker() {
 			<CardHeader>
 				<CardTitle>Вибір дат перегляду</CardTitle>
 			</CardHeader>
-			<CardContent className='space-y-6'>
+			<CardContent className='space-y-10'>
 				<div className='space-y-2'>
 					<h3 className='text-lg font-medium'>Період</h3>
 					<Tabs
@@ -214,8 +162,8 @@ export function InfoPicker() {
 					{preset === 'custom' ? (
 						<div className='flex flex-col gap-4'>
 							<div className='flex gap-4'>
-								{renderDateField('start', 'Початкова дата')}
-								{renderDateField('end', 'Кінцева дата')}
+								{renderDateField('start', 'Початкова дата', dates.start)}
+								{renderDateField('end', 'Кінцева дата', dates.end)}
 							</div>
 							<Button onClick={applyDates} className='self-end'>
 								Застосувати
@@ -231,66 +179,50 @@ export function InfoPicker() {
 					)}
 				</div>
 
-				{/* Calendar popup */}
-				{showCalendar && calendarType && (
-					<Card className='absolute z-10 top-1/2 -translate-y-1/4 px-3'>
-						{calendarType === 'start' ? (
-							<>Вибір початкової дати</>
-						) : (
-							<>Вибір кінцевої дати</>
-						)}
-						<DayPicker
-							mode='single'
-							selected={dates.start}
-							onDayClick={day => handleDaySelect(day, calendarType)}
-							defaultMonth={dates.start}
-							footer={
-								<div className='flex justify-end p-2'>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={() => setShowCalendar(false)}
-									>
-										Close
-									</Button>
-								</div>
-							}
-						/>
-					</Card>
-				)}
+				<div className='space-y-2'>
+					<h3 className='text-base font-semibold'>Вибір версії бюджету</h3>
+					{budgetVersions ? (
+						<div className='space-y-2 flex flex-col'>
+							<Label htmlFor='budget-version'>Версія бюджету</Label>
+							<Select
+								value={selectedBudgetVersion?.id.toString() ?? ''}
+								onValueChange={id => {
+									setSelectedBudgetVersion(
+										budgetVersions.find(version => version.id === Number(id))
+									)
+								}}
+							>
+								<SelectTrigger className='w-full'>
+									<SelectValue placeholder='Оберіть версію бюджету' />
+								</SelectTrigger>
+								<SelectContent>
+									{budgetVersions.map((version: IBudgetVersion) => (
+										<SelectItem key={version.id} value={version.id.toString()}>
+											{version.version} ({version.date_from} - {version.date_to}
+											)
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{budgetVersions?.length === 0 && (
+								<p className='text-sm text-muted-foreground'>
+									Немає доступних версій бюджету для обраного періоду
+								</p>
+							)}
+							<Button onClick={applyBudgetVersion} className='self-end'>
+								Застосувати
+							</Button>
+						</div>
+					) : (
+						<>Завантаження версій бюджету...</>
+					)}
+				</div>
 
 				<div className='space-y-2'>
-					<h3 className='text-lg font-medium'>Вибір версії бюджету</h3>
-					<div className='space-y-2 flex flex-col'>
-						<Label htmlFor='budget-version'>Версія бюджету</Label>
-						<Select
-							value={selectedBudgetVersion?.id.toString()}
-							onValueChange={id => {
-								setSelectedBudgetVersion(
-									budgetVersions?.find(version => version.id === Number(id))
-								)
-							}}
-						>
-							<SelectTrigger className='w-full'>
-								<SelectValue placeholder='Оберіть версію бюджету' />
-							</SelectTrigger>
-							<SelectContent>
-								{budgetVersions?.map((version: IBudgetVersion) => (
-									<SelectItem key={version.id} value={version.toString()}>
-										{version.version} ({version.date_from} - {version.date_to})
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						{budgetVersions?.length === 0 && (
-							<p className='text-sm text-muted-foreground'>
-								Немає доступних версій бюджету для обраного періоду
-							</p>
-						)}
-						<Button onClick={applyBudgetVersion} className='self-end'>
-							Застосувати
-						</Button>
-					</div>
+					<h3 className='text-base font-semibold'>
+						Запустити процес генерації бюджету
+					</h3>
+					<StartBudgeting />
 				</div>
 			</CardContent>
 		</Card>

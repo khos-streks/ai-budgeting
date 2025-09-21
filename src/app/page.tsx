@@ -4,7 +4,7 @@ import { InfoPicker } from '@/components/dashboard/info-picker'
 import { KeyIndicators } from '@/components/dashboard/key-indicators'
 import { PlanFactSummary } from '@/components/dashboard/plan-fact/plan-fact-summary'
 import { PlanFactTable } from '@/components/dashboard/plan-fact/plan-fact-table'
-import { StartBudgeting } from '@/components/dashboard/start-budgeting'
+// import { StartBudgeting } from '@/components/dashboard/start-budgeting'
 import { SummaryTable } from '@/components/dashboard/summary-table'
 import { TopDeviations } from '@/components/dashboard/top-deviations'
 import { DateProvider } from '@/contexts/date-context'
@@ -17,17 +17,17 @@ export default function Home() {
 				<DateProvider>
 					<div className='space-y-10 max-md:contents'>
 						<InfoPicker />
+						{/* <StartBudgeting /> */}
+						<AiAssistant />
 						<FilesDownloading />
-						<AiAssistant className='max-md:order-10 sticky top-10 h-[calc(100vh-5rem)]' />
 					</div>
 					<div className='w-full overflow-hidden space-y-10'>
 						<PlanFactSummary />
-						<StartBudgeting />
-						<PlanFactTable />
-						<SummaryTable />
-						<KeyIndicators />
 						<TopDeviations />
 						<SummaryReport />
+						<KeyIndicators />
+						<PlanFactTable />
+						<SummaryTable />
 					</div>
 				</DateProvider>
 			</main>
