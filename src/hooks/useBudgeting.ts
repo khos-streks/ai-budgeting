@@ -1,6 +1,6 @@
 import { budgetingService } from '@/services/budgeting.service'
 import { ConsolidatedFilters } from '@/typing/filters'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export function useSummaryData(
 	startDate: string,
@@ -49,6 +49,18 @@ export function useBudgetCounts() {
 		queryKey: ['budget counts'],
 		queryFn: () => budgetingService.getBudgetCounts(),
 		refetchOnWindowFocus: false,
+	})
+}
+
+export function useDeleteBudgetVersion() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (id: string) => {
+			return await budgetingService.deleteVersion(id)
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['budget versions'] })
+		},
 	})
 }
 

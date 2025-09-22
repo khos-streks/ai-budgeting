@@ -1,7 +1,7 @@
 'use client'
 
 import { useDateContext } from '@/contexts/date-context'
-import { useBudgetVersions } from '@/hooks/useBudgeting'
+import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
 import {
 	endOfMonth,
 	endOfQuarter,
@@ -13,13 +13,10 @@ import {
 	startOfQuarter,
 	startOfYear,
 } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import {
 	Select,
@@ -31,8 +28,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { IBudgetVersion } from '@/typing/budget-version'
 import { StartBudgeting } from './start-budgeting/budgeting'
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { DatePicker } from '../ui/date-picker'
+import { LoaderIcon } from 'lucide-react'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
@@ -42,6 +39,7 @@ export function InfoPicker() {
 		dateRange.startDate,
 		dateRange.endDate
 	)
+	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
 
 	const [preset, setPreset] = useState<DatePreset>('custom')
 	const [selectedBudgetVersion, setSelectedBudgetVersion] = useState<
@@ -180,7 +178,9 @@ export function InfoPicker() {
 				</div>
 
 				<div className='space-y-2'>
-					<h3 className='text-base font-semibold'>Вибір версії бюджету</h3>
+					<h3 className='text-base font-semibold'>
+						Керування версіями бюджету
+					</h3>
 					{budgetVersions ? (
 						<div className='space-y-2 flex flex-col'>
 							<Label htmlFor='budget-version'>Версія бюджету</Label>
@@ -209,9 +209,29 @@ export function InfoPicker() {
 									Немає доступних версій бюджету для обраного періоду
 								</p>
 							)}
-							<Button onClick={applyBudgetVersion} className='self-end'>
-								Застосувати
-							</Button>
+							<div className='flex items-center gap-2'>
+								<Button
+									disabled={isPending}
+									onClick={async () => {
+										try {
+											if (!selectedBudgetVersion?.id) return
+											await deleteVersion(selectedBudgetVersion.id.toString())
+										} catch {}
+									}}
+									variant='destructive'
+									className='self-end flex items-center gap-2'
+								>
+									{isPending && <LoaderIcon className='animate-spin' />}
+									Видалити
+								</Button>
+								<Button
+									disabled={isPending}
+									onClick={applyBudgetVersion}
+									className='self-end'
+								>
+									Переглянути
+								</Button>
+							</div>
 						</div>
 					) : (
 						<>Завантаження версій бюджету...</>

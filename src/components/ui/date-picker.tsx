@@ -43,17 +43,16 @@ export function DatePicker({ id, label, value, onChange }: DatePickerProps) {
 					</div>
 				</PopoverTrigger>
 				<PopoverContent
-					className='p-2 rounded-xl shadow-lg border bg-white w-auto'
+					className='p-2 rounded-xl shadow-lg border bg-white w-auto pointer-events-auto'
 					align='start'
 					sideOffset={8}
 				>
 					<DayPicker
 						mode='single'
 						selected={value}
-						onSelect={day => {
+						onDayClick={day => {
 							if (day) {
 								onChange(day)
-								setOpen(false)
 							}
 						}}
 						defaultMonth={value}

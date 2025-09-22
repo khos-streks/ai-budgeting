@@ -8,39 +8,28 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { useGetBudgetingStatus, useStartBudgeting } from '@/hooks/useBudgeting'
 import { format } from 'date-fns'
-import { CalendarIcon, Loader2Icon, RotateCcw } from 'lucide-react'
+import { Loader2Icon, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
-import { DayPicker } from 'react-day-picker'
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover'
 import { DatePicker } from '@/components/ui/date-picker'
+import { cn } from '@/lib/utils'
 
 export function StartBudgeting() {
 	const { mutateAsync: start, isPending, isSuccess, data } = useStartBudgeting()
 	const {
 		data: status,
-		isLoading: isStatusLoading,
+		isLoading,
+		isRefetching: isStatusRefetching,
 		refetch: refetchStatus,
 	} = useGetBudgetingStatus()
 
+	const isStatusLoading = isLoading || isStatusRefetching
+
 	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
-	const [showStartCalendar, setShowStartCalendar] = useState(false)
-	const [showEndCalendar, setShowEndCalendar] = useState(false)
 
 	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
 		setDates(prev => ({ ...prev, [type]: day }))
-		if (type === 'start') {
-			setShowStartCalendar(false)
-		} else {
-			setShowEndCalendar(false)
-		}
 	}
 
 	const handleSubmit = async () => {
@@ -67,7 +56,7 @@ export function StartBudgeting() {
 				<DialogHeader>
 					<DialogTitle>Статус процесу бюджетування</DialogTitle>
 					<div className='space-y-4 mt-4'>
-						{isStatusLoading ? (
+						{isLoading ? (
 							<div className='flex items-center gap-2 text-muted-foreground'>
 								<Loader2Icon className='w-4 h-4 animate-spin' />
 								<span>Завантаження статусу...</span>
@@ -81,11 +70,19 @@ export function StartBudgeting() {
 								</div>
 								<div className='pt-2'>
 									<Button
+										disabled={isStatusLoading}
 										variant='outline'
 										className='w-full flex items-center gap-2'
 										onClick={() => refetchStatus()}
 									>
-										<RotateCcw className='w-4 h-4' />
+										<RotateCcw
+											className={cn(
+												'w-4 h-4 transition-transform duration-700',
+												{
+													'rotate-[-360deg]': isStatusLoading,
+												}
+											)}
+										/>
 										Оновити дані
 									</Button>
 								</div>

@@ -45,6 +45,11 @@ class BudgetingService {
 		return response.data
 	}
 
+	async deleteVersion(id: string) {
+		const response = await api.delete(`/budgeting/budget-versions/${id}`)
+		return response.data
+	}
+
 	async getConsolidatedFilters() {
 		const response = await api.get(`/budgeting/filters/consolidated`)
 		return response.data
