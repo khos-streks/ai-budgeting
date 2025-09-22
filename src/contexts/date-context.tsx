@@ -23,8 +23,8 @@ interface DateContextType {
 }
 
 const defaultDateRange = {
-	startDate: '2025-01-01',
-	endDate: '2025-06-30',
+	startDate: `${new Date().getFullYear()}-01-01`,
+	endDate: `${new Date().getFullYear()}-12-31`,
 	budgetVersion: undefined,
 }
 
