@@ -195,12 +195,14 @@ export function InfoPicker() {
 						{isPlanFactStartPending ? <LoaderIcon /> : 'Переглянути'}
 					</Button>
 					<div className='text-sm text-neutral-500 flex items-center gap-3'>
-						Статус план-факт аналізу:{' '}
-						<b>
-							{isStatusLoading || isStatusRefetching
-								? '...'
-								: planFactStatus?.status}
-						</b>
+						<div>
+							Статус план-факт аналізу:{' '}
+							<b>
+								{isStatusLoading || isStatusRefetching
+									? '...'
+									: planFactStatus?.status}
+							</b>
+						</div>
 						<Button
 							variant='outline'
 							size='icon'
