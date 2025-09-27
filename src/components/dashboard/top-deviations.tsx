@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useDateContext } from '@/contexts/date-context'
 import {
 	useGetBudgetTypes,
 	useGetLogisticsTypes,
@@ -12,9 +11,10 @@ import {
 import { useEffect, useState } from 'react'
 import { ExcelHtmlViewer } from '../ui/excel-viewer'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select'
+import { useBudgetVersionContext } from '@/contexts/budget-version-context'
 
 export const TopDeviations = () => {
-	const { dateRange } = useDateContext()
+	const { budgetVersion } = useBudgetVersionContext()
 	const [currentBudgetType, setCurrentBudgetType] = useState<
 		{ key: string; label: string } | undefined
 	>(undefined)
@@ -23,13 +23,11 @@ export const TopDeviations = () => {
 	>(undefined)
 	const { data: budgetTypes, isLoading: isBudgetTypesLoading } =
 		useGetBudgetTypes()
-	const { data: logisticTypes, isLoading: isLogisticTypesLoading } =
+	const { data: logisticTypes } =
 		useGetLogisticsTypes()
 	const { data, isLoading: isTopDeviationsLoading } = useTopDeviations(
-		dateRange.startDate,
-		dateRange.endDate,
 		currentBudgetType,
-		dateRange.budgetVersion?.version
+		budgetVersion?.version
 	)
 
 	useEffect(() => {

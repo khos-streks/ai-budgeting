@@ -1,22 +1,21 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useDateContext } from '@/contexts/date-context'
+import { useBudgetCounts } from '@/hooks/useBudgeting'
 import { usePlanFactSummary } from '@/hooks/usePlanFact'
 import { ReactNode } from 'react'
 import { AnomaliesItem } from './anomalies-item'
 import { SummaryItem } from './summary-item'
 import { SummaryData } from './summary-utils'
-import { useBudgetCounts } from '@/hooks/useBudgeting'
+import { useBudgetVersionContext } from '@/contexts/budget-version-context'
 
 // Main component
 export function PlanFactSummary() {
-	const { dateRange } = useDateContext()
-	const { data: budgetCounts, isLoading: isBudgetCountsLoading } = useBudgetCounts()
+	const { budgetVersion } = useBudgetVersionContext()
+	const { data: budgetCounts, isLoading: isBudgetCountsLoading } =
+		useBudgetCounts()
 	const { data, isLoading: isPlanFactLoading } = usePlanFactSummary(
-		dateRange.startDate,
-		dateRange.endDate,
-		dateRange.budgetVersion?.version
+		budgetVersion?.version
 	)
 
 	const isLoading = isBudgetCountsLoading || isPlanFactLoading
@@ -39,8 +38,7 @@ export function PlanFactSummary() {
 		<Card>
 			<CardHeader>
 				<CardTitle>
-					Узагальнена інформація за період "{dateRange.startDate}" - "
-					{dateRange.endDate}"
+					Узагальнена інформація
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
@@ -52,7 +50,7 @@ export function PlanFactSummary() {
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 						{Object.entries({ ...data, budget_counts: budgetCounts.count })
 							?.filter(([key]) => key !== 'anomalies')
-							.map(([key, value]) => renderSummaryItem(key, value, data)	)}
+							.map(([key, value]) => renderSummaryItem(key, value, data))}
 					</div>
 				) : (
 					<div className='flex items-center justify-center p-6'>

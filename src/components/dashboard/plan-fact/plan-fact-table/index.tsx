@@ -7,15 +7,15 @@ import {
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
-import { useDateContext } from '@/contexts/date-context'
 import { useMainTableFilters, usePlanFactTable } from '@/hooks/usePlanFact'
 import { useTableFilters } from '@/hooks/useTableFilters'
 import { PLAN_FACT_QUICK_FILTERS, PlanFactFilters } from '@/typing/filters'
 import { useEffect, useState } from 'react'
 import { SortingInfo } from './sorting-info'
+import { useBudgetVersionContext } from '@/contexts/budget-version-context'
 
 export function PlanFactTable() {
-	const { dateRange } = useDateContext()
+	const { budgetVersion } = useBudgetVersionContext()
 	const { data: filterOptions, isLoading: filtersLoading } =
 		useMainTableFilters()
 	const [fileUrl, setFileUrl] = useState<string | null>(null)
@@ -31,9 +31,7 @@ export function PlanFactTable() {
 	} = useTableFilters(PLAN_FACT_QUICK_FILTERS)
 
 	const { data: fileData, isLoading } = usePlanFactTable(
-		dateRange.startDate,
-		dateRange.endDate,
-		dateRange.budgetVersion?.version,
+		budgetVersion?.version,
 		filters as PlanFactFilters
 	)
 
@@ -56,7 +54,6 @@ export function PlanFactTable() {
 					filters={filters}
 					hasActiveFilters={hasActiveFilters}
 					fileUrl={fileUrl}
-					dateRange={dateRange}
 					onClearFilters={clearAllFilters}
 					onToggleFilters={toggleFiltersExpanded}
 					isFiltersExpanded={isFiltersExpanded}

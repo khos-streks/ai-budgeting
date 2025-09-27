@@ -3,36 +3,21 @@ import { ConsolidatedFilters } from '@/typing/filters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export function useSummaryData(
-	startDate: string,
-	endDate: string,
 	budgetVersion?: number,
 	filters?: ConsolidatedFilters
 ) {
 	return useQuery({
-		queryKey: ['summary data', startDate, endDate, budgetVersion, filters],
-		queryFn: () =>
-			budgetingService.getConsolidated(
-				startDate,
-				endDate,
-				budgetVersion,
-				filters
-			),
+		queryKey: ['summary data', budgetVersion, filters],
+		queryFn: () => budgetingService.getConsolidated(budgetVersion, filters),
 		refetchOnWindowFocus: false,
 	})
 }
 
-export function useBudgetVersions(
-	startDate: string | undefined,
-	endDate: string | undefined
-) {
+export function useBudgetVersions() {
 	return useQuery({
-		queryKey: ['budget versions', startDate, endDate],
-		queryFn: () => {
-			if (!startDate || !endDate) return
-			return budgetingService.getVersions(startDate, endDate)
-		},
+		queryKey: ['budget versions'],
+		queryFn: budgetingService.getVersions,
 		refetchOnWindowFocus: false,
-		enabled: !!startDate && !!endDate,
 	})
 }
 

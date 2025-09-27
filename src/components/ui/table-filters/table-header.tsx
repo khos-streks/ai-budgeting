@@ -10,7 +10,6 @@ interface TableHeaderProps {
 	filters: PlanFactFilters | ConsolidatedFilters
 	hasActiveFilters: boolean
 	fileUrl: string | null
-	dateRange: { startDate: string; endDate: string }
 	onClearFilters: () => void
 	onToggleFilters: () => void
 	isFiltersExpanded: boolean
@@ -22,7 +21,6 @@ export function TableHeader({
 	filters,
 	hasActiveFilters,
 	fileUrl,
-	dateRange,
 	onClearFilters,
 	onToggleFilters,
 	isFiltersExpanded,
@@ -92,9 +90,9 @@ export function TableHeader({
 				{fileUrl && (
 					<a
 						href={fileUrl}
-						download={`${downloadFileName}-${dateRange.startDate}-${
-							dateRange.endDate
-						}${hasActiveFilters ? '-filtered' : ''}.xlsx`}
+						download={`${downloadFileName}-${new Date()}-${
+							hasActiveFilters ? '-filtered' : ''
+						}.xlsx`}
 					>
 						<Button>
 							<DownloadIcon /> Завантажити Excel файл

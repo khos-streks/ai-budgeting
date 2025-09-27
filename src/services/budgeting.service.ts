@@ -3,16 +3,8 @@ import { IBudgetVersion } from '@/typing/budget-version'
 import { ConsolidatedFilters } from '@/typing/filters'
 
 class BudgetingService {
-	async getConsolidated(
-		startDate: string,
-		endDate: string,
-		budgetVersion?: number,
-		filters?: ConsolidatedFilters
-	) {
-		const params = new URLSearchParams({
-			start_date: startDate,
-			end_date: endDate,
-		})
+	async getConsolidated(budgetVersion?: number, filters?: ConsolidatedFilters) {
+		const params = new URLSearchParams()
 
 		if (budgetVersion) {
 			params.append('budget_version', budgetVersion.toString())
@@ -38,9 +30,9 @@ class BudgetingService {
 		).data
 	}
 
-	async getVersions(startDate: string, endDate: string) {
+	async getVersions() {
 		const response = await api.get<IBudgetVersion[]>(
-			`/budgeting/budget-versions?date_from=${startDate}&date_to=${endDate}`
+			`/budgeting/budget-versions`
 		)
 		return response.data
 	}

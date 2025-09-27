@@ -1,7 +1,6 @@
 'use client'
 
-import { useDateContext } from '@/contexts/date-context'
-import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
+import { IBudgetVersion } from '@/typing/budget-version'
 import {
 	endOfMonth,
 	endOfQuarter,
@@ -13,10 +12,12 @@ import {
 	startOfQuarter,
 	startOfYear,
 } from 'date-fns'
+import { LoaderIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import 'react-day-picker/dist/style.css'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { DatePicker } from '../ui/date-picker'
 import { Label } from '../ui/label'
 import {
 	Select,
@@ -26,25 +27,38 @@ import {
 	SelectValue,
 } from '../ui/select'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
-import { IBudgetVersion } from '@/typing/budget-version'
-import { StartBudgeting } from './start-budgeting/budgeting'
-import { DatePicker } from '../ui/date-picker'
-import { LoaderIcon } from 'lucide-react'
+import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
+import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
 export function InfoPicker() {
-	const { dateRange, setDateRange, setBudgetVersion } = useDateContext()
-	const { data: budgetVersions } = useBudgetVersions(
-		dateRange.startDate,
-		dateRange.endDate
-	)
+	const { budgetVersion, setBudgetVersion } = useBudgetVersionContext()
+
+	const { mutateAsync: startPlanFact, isPending: isPlanFactStartPending } =
+		useStartPlanFact()
+	const {
+		data: planFactStatus,
+		refetch,
+		isLoading: isStatusLoading,
+		isRefetching: isStatusRefetching,
+	} = useGetPlanFactStatus()
+
+	const [dateRange, setDateRange] = useState<{
+		startDate: string
+		endDate: string
+	}>({
+		startDate: `${new Date().getFullYear()}-01-01`,
+		endDate: `${new Date().getFullYear()}-12-31`,
+	})
+	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
 
 	const [preset, setPreset] = useState<DatePreset>('custom')
 	const [selectedBudgetVersion, setSelectedBudgetVersion] = useState<
 		IBudgetVersion | undefined
-	>(dateRange.budgetVersion || undefined)
+	>(budgetVersion || undefined)
 
 	useEffect(() => {
 		setSelectedBudgetVersion(budgetVersions?.[0])
@@ -101,12 +115,18 @@ export function InfoPicker() {
 		setPreset('custom')
 	}
 
-	const applyDates = () => {
+	const applyDates = async () => {
 		setDateRange({
 			startDate: inputValues.start,
 			endDate: inputValues.end,
-			budgetVersion: dateRange.budgetVersion,
 		})
+
+		try {
+			await startPlanFact({
+				...dateRange,
+				budgetVersion: budgetVersion?.version ?? null,
+			})
+		} catch {}
 	}
 
 	const applyBudgetVersion = () => {
@@ -140,7 +160,7 @@ export function InfoPicker() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Вибір дат перегляду</CardTitle>
+				<CardTitle>Вибір дат план-факт аналізу</CardTitle>
 			</CardHeader>
 			<CardContent className='space-y-10'>
 				<div className='space-y-2'>
@@ -163,18 +183,25 @@ export function InfoPicker() {
 								{renderDateField('start', 'Початкова дата', dates.start)}
 								{renderDateField('end', 'Кінцева дата', dates.end)}
 							</div>
-							<Button onClick={applyDates} className='self-end'>
-								Застосувати
-							</Button>
 						</div>
 					) : (
-						<div className='flex flex-col gap-2'>
-							{getDateRangeSummary()}
-							<Button onClick={applyDates} className='self-end'>
-								Застосувати
-							</Button>
-						</div>
+						<div className='flex flex-col gap-2'>{getDateRangeSummary()}</div>
 					)}
+					<Button
+						onClick={applyDates}
+						disabled={isPlanFactStartPending}
+						className='self-end flex items-center gap-2'
+					>
+						{isPlanFactStartPending ? <LoaderIcon /> : 'Переглянути'}
+					</Button>
+					<div className='text-sm text-neutral-500'>
+						Статус план-факт аналізу:{' '}
+						<b>
+							{isStatusLoading || isStatusRefetching
+								? '...'
+								: planFactStatus?.status}
+						</b>
+					</div>
 				</div>
 
 				<div className='space-y-2'>
@@ -236,13 +263,6 @@ export function InfoPicker() {
 					) : (
 						<>Завантаження версій бюджету...</>
 					)}
-				</div>
-
-				<div className='space-y-2'>
-					<h3 className='text-base font-semibold'>
-						Запустити процес генерації бюджету
-					</h3>
-					<StartBudgeting />
 				</div>
 			</CardContent>
 		</Card>

@@ -2,18 +2,18 @@
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ExcelHtmlViewer } from '@/components/ui/excel-viewer'
-import { useDateContext } from '@/contexts/date-context'
-import { useConsolidatedFilters, useSummaryData } from '@/hooks/useBudgeting'
-import { useTableFilters } from '@/hooks/useTableFilters'
-import { useEffect, useState } from 'react'
 import {
 	AdvancedFilters,
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
+import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useConsolidatedFilters, useSummaryData } from '@/hooks/useBudgeting'
+import { useTableFilters } from '@/hooks/useTableFilters'
+import { useEffect, useState } from 'react'
 
 export function SummaryTable() {
-	const { dateRange } = useDateContext()
+	const { budgetVersion } = useBudgetVersionContext()
 	const { data: filterOptions, isLoading: filtersLoading } =
 		useConsolidatedFilters()
 
@@ -28,9 +28,7 @@ export function SummaryTable() {
 	} = useTableFilters()
 
 	const { data: fileData, isLoading } = useSummaryData(
-		dateRange.startDate,
-		dateRange.endDate,
-		dateRange.budgetVersion?.version,
+		budgetVersion?.version,
 		filters
 	)
 
@@ -53,7 +51,6 @@ export function SummaryTable() {
 					filters={filters}
 					hasActiveFilters={hasActiveFilters}
 					fileUrl={fileUrl}
-					dateRange={dateRange}
 					onClearFilters={clearAllFilters}
 					onToggleFilters={toggleFiltersExpanded}
 					isFiltersExpanded={isFiltersExpanded}
@@ -61,9 +58,7 @@ export function SummaryTable() {
 			</CardHeader>
 
 			<CardContent>
-				<QuickFilters
-					onQuickFilter={applyQuickFilter}
-				/>
+				<QuickFilters onQuickFilter={applyQuickFilter} />
 
 				{/* Advanced Filters */}
 				{isFiltersExpanded && (
