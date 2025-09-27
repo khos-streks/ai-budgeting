@@ -30,10 +30,12 @@ import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { useBudgetVersionContext } from '@/contexts/budget-version-context'
 import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
 import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
+import { useQueryClient } from '@tanstack/react-query'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
 export function InfoPicker() {
+	const queryClient = useQueryClient()
 	const { budgetVersion, setBudgetVersion } = useBudgetVersionContext()
 
 	const { mutateAsync: startPlanFact, isPending: isPlanFactStartPending } =
@@ -131,6 +133,17 @@ export function InfoPicker() {
 
 	const applyBudgetVersion = () => {
 		setBudgetVersion(selectedBudgetVersion)
+		queryClient.invalidateQueries({ queryKey: ['summary data'] })
+		queryClient.invalidateQueries({ queryKey: ['budget counts'] })
+		queryClient.invalidateQueries({ queryKey: ['files'] })
+		queryClient.invalidateQueries({ queryKey: ['plan-fact-summary'] })
+		queryClient.invalidateQueries({ queryKey: ['plan-fact-table'] })
+		queryClient.invalidateQueries({ queryKey: ['top-deviations'] })
+		queryClient.invalidateQueries({ queryKey: ['get budget types'] })
+		queryClient.invalidateQueries({ queryKey: ['get logistics types'] })
+		queryClient.invalidateQueries({ queryKey: ['get quantity metrics'] })
+		queryClient.invalidateQueries({ queryKey: ['get key indicators'] })
+		queryClient.invalidateQueries({ queryKey: ['get summary report'] })
 	}
 
 	const renderDateField = (
@@ -192,7 +205,7 @@ export function InfoPicker() {
 						disabled={isPlanFactStartPending}
 						className='self-end flex items-center gap-2'
 					>
-						{isPlanFactStartPending ? <LoaderIcon /> : 'Переглянути'}
+						{isPlanFactStartPending ? <LoaderIcon /> : 'Запустити'}
 					</Button>
 					<div className='text-sm text-neutral-500 flex items-center gap-3'>
 						<div>
@@ -265,19 +278,20 @@ export function InfoPicker() {
 									{isPending && <LoaderIcon className='animate-spin' />}
 									Видалити
 								</Button>
-								<Button
-									disabled={isPending}
-									onClick={applyBudgetVersion}
-									className='self-end'
-								>
-									Переглянути
-								</Button>
 							</div>
 						</div>
 					) : (
 						<>Завантаження версій бюджету...</>
 					)}
 				</div>
+
+				<Button
+					disabled={isPending}
+					onClick={applyBudgetVersion}
+					className='self-end'
+				>
+					Застосувати
+				</Button>
 			</CardContent>
 		</Card>
 	)
