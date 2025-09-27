@@ -7,6 +7,7 @@ export function usePlanFactSummary(budgetVersion?: number) {
 		queryKey: ['plan-fact-summary', budgetVersion],
 		queryFn: () => planFactService.getPlanFact(budgetVersion),
 		refetchOnWindowFocus: false,
+		enabled: !!budgetVersion
 	})
 }
 
@@ -18,6 +19,7 @@ export function usePlanFactTable(
 		queryKey: ['plan-fact-table', budgetVersion, filters],
 		queryFn: () => planFactService.getMainTable(budgetVersion, filters),
 		refetchOnWindowFocus: false,
+		enabled: !!budgetVersion
 	})
 }
 
@@ -47,7 +49,7 @@ export function useTopDeviations(
 			if (!budgetType) return
 			return planFactService.getTopDeviations(budgetType, budgetVersion)
 		},
-		enabled: !!budgetType,
+		enabled: !!budgetType && !!budgetVersion,
 		refetchOnWindowFocus: false,
 	})
 }

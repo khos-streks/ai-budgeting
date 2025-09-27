@@ -145,7 +145,7 @@ class PlanFactService {
 
 	async getKeyIndicators(version_id: number, indicator: string) {
 		const response = await api.get(
-			`/plan-fact/key-indicators?version_id=${version_id}&indicator=${indicator}`,
+			`/plan-fact/key-indicators?budget_version=${version_id}&indicator=${indicator}`,
 			{
 				responseType: 'blob',
 				headers: {

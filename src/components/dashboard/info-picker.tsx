@@ -12,7 +12,7 @@ import {
 	startOfQuarter,
 	startOfYear,
 } from 'date-fns'
-import { LoaderIcon } from 'lucide-react'
+import { LoaderIcon, RotateCwIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import 'react-day-picker/dist/style.css'
 import { Button } from '../ui/button'
@@ -194,13 +194,25 @@ export function InfoPicker() {
 					>
 						{isPlanFactStartPending ? <LoaderIcon /> : 'Переглянути'}
 					</Button>
-					<div className='text-sm text-neutral-500'>
+					<div className='text-sm text-neutral-500 flex items-center gap-3'>
 						Статус план-факт аналізу:{' '}
 						<b>
 							{isStatusLoading || isStatusRefetching
 								? '...'
 								: planFactStatus?.status}
 						</b>
+						<Button
+							variant='outline'
+							size='icon'
+							onClick={() => refetch()}
+							disabled={isStatusRefetching}
+						>
+							{isStatusRefetching ? (
+								<LoaderIcon className='animate-spin' />
+							) : (
+								<RotateCwIcon />
+							)}
+						</Button>
 					</div>
 				</div>
 

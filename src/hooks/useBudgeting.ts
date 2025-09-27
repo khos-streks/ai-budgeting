@@ -10,6 +10,7 @@ export function useSummaryData(
 		queryKey: ['summary data', budgetVersion, filters],
 		queryFn: () => budgetingService.getConsolidated(budgetVersion, filters),
 		refetchOnWindowFocus: false,
+		enabled: !!budgetVersion
 	})
 }
 
