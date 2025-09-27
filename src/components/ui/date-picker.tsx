@@ -53,6 +53,7 @@ export function DatePicker({ id, label, value, onChange }: DatePickerProps) {
 						onDayClick={day => {
 							if (day) {
 								onChange(day)
+								setOpen(false)
 							}
 						}}
 						defaultMonth={value}
