@@ -17,9 +17,10 @@ interface DatePickerProps {
 	label?: string
 	value: Date
 	onChange: (date: Date) => void
+	disabled?: boolean
 }
 
-export function DatePicker({ id, label, value, onChange }: DatePickerProps) {
+export function DatePicker({ id, label, value, onChange, disabled = false }: DatePickerProps) {
 	const [open, setOpen] = useState(false)
 
 	return (
@@ -30,10 +31,11 @@ export function DatePicker({ id, label, value, onChange }: DatePickerProps) {
 				</label>
 			)}
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger asChild>
+				<PopoverTrigger asChild disabled={disabled}>
 					<div className='relative w-full'>
 						<Input
 							id={id}
+							disabled={disabled}
 							type='text'
 							value={format(value, 'yyyy-MM-dd')}
 							readOnly

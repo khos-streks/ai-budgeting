@@ -78,7 +78,7 @@ export function AiAssistant({ className }: { className?: string }) {
 			>
 				<CardHeader className='pb-2 flex-shrink-0'>
 					<CardTitle className='flex items-center'>
-						<Bot className='mr-2 h-5 w-5' /> AI-ассистент
+						<Bot className='mr-2 h-5 w-5' /> AI-асистент
 					</CardTitle>
 				</CardHeader>
 				<CardContent className='flex-1 flex flex-col overflow-hidden p-4 pb-8'>

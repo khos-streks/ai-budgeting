@@ -12,7 +12,12 @@ import {
 	startOfQuarter,
 	startOfYear,
 } from 'date-fns'
-import { LoaderIcon, RotateCwIcon } from 'lucide-react'
+import {
+	LoaderIcon,
+	RotateCwIcon,
+	CheckCircle2Icon,
+	XCircleIcon,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import 'react-day-picker/dist/style.css'
 import { Button } from '../ui/button'
@@ -30,23 +35,17 @@ import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { useBudgetVersionContext } from '@/contexts/budget-version-context'
 import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
 import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
-import { useQueryClient } from '@tanstack/react-query'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
 export function InfoPicker() {
-	const queryClient = useQueryClient()
 	const { budgetVersion, setBudgetVersion } = useBudgetVersionContext()
-
-	const { mutateAsync: startPlanFact, isPending: isPlanFactStartPending } =
-		useStartPlanFact()
 	const {
-		data: planFactStatus,
-		refetch,
-		isLoading: isStatusLoading,
-		isRefetching: isStatusRefetching,
-	} = useGetPlanFactStatus()
-
+		mutateAsync: startPlanFact,
+		isPending: isPlanFactStartPending,
+		data: planFactStartData,
+	} = useStartPlanFact()
+	const { data: planFactStatus, refetch } = useGetPlanFactStatus()
 	const [dateRange, setDateRange] = useState<{
 		startDate: string
 		endDate: string
@@ -56,22 +55,14 @@ export function InfoPicker() {
 	})
 	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
-
 	const [preset, setPreset] = useState<DatePreset>('custom')
 	const [selectedBudgetVersion, setSelectedBudgetVersion] = useState<
 		IBudgetVersion | undefined
 	>(budgetVersion || undefined)
-
-	useEffect(() => {
-		setSelectedBudgetVersion(budgetVersions?.[0])
-		setBudgetVersion(budgetVersions?.[0])
-	}, [budgetVersions])
-
 	const [inputValues, setInputValues] = useState({
 		start: dateRange.startDate,
 		end: dateRange.endDate,
 	})
-
 	const [dates, setDates] = useState({
 		start: parseDate(dateRange.startDate),
 		end: parseDate(dateRange.endDate),
@@ -81,6 +72,11 @@ export function InfoPicker() {
 		const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date())
 		return isValid(parsedDate) ? parsedDate : undefined
 	}
+
+	useEffect(() => {
+		setSelectedBudgetVersion(budgetVersions?.[0])
+		setBudgetVersion(budgetVersions?.[0])
+	}, [budgetVersions])
 
 	const applyDatePreset = (preset: DatePreset) => {
 		setPreset(preset)
@@ -118,48 +114,32 @@ export function InfoPicker() {
 	}
 
 	const applyDates = async () => {
-		setDateRange({
-			startDate: inputValues.start,
-			endDate: inputValues.end,
-		})
-
+		setDateRange({ startDate: inputValues.start, endDate: inputValues.end })
 		try {
 			await startPlanFact({
 				...dateRange,
 				budgetVersion: budgetVersion?.version ?? null,
 			})
+			refetch()
 		} catch {}
 	}
 
-	const applyBudgetVersion = () => {
-		setBudgetVersion(selectedBudgetVersion)
-		queryClient.invalidateQueries({ queryKey: ['summary data'] })
-		queryClient.invalidateQueries({ queryKey: ['budget counts'] })
-		queryClient.invalidateQueries({ queryKey: ['files'] })
-		queryClient.invalidateQueries({ queryKey: ['plan-fact-summary'] })
-		queryClient.invalidateQueries({ queryKey: ['plan-fact-table'] })
-		queryClient.invalidateQueries({ queryKey: ['top-deviations'] })
-		queryClient.invalidateQueries({ queryKey: ['get budget types'] })
-		queryClient.invalidateQueries({ queryKey: ['get logistics types'] })
-		queryClient.invalidateQueries({ queryKey: ['get quantity metrics'] })
-		queryClient.invalidateQueries({ queryKey: ['get key indicators'] })
-		queryClient.invalidateQueries({ queryKey: ['get summary report'] })
-	}
+	const applyBudgetVersion = () => setBudgetVersion(selectedBudgetVersion)
 
 	const renderDateField = (
 		type: 'start' | 'end',
 		label: string,
-		selectedDate: Date | undefined
-	) => {
-		return (
-			<DatePicker
-				id={`${type}-date`}
-				label={label}
-				onChange={day => handleDaySelect(day, type)}
-				value={selectedDate ?? new Date()}
-			/>
-		)
-	}
+		selectedDate: Date | undefined,
+		disabled = false
+	) => (
+		<DatePicker
+			disabled={disabled}
+			id={`${type}-date`}
+			label={label}
+			onChange={day => handleDaySelect(day, type)}
+			value={selectedDate ?? new Date()}
+		/>
+	)
 
 	const getDateRangeSummary = () => {
 		if (preset === 'custom') return null
@@ -170,6 +150,53 @@ export function InfoPicker() {
 		)
 	}
 
+	const renderPlanFactStatus = () => {
+		const startStatus = planFactStartData?.status
+
+		const backendStatus = planFactStatus?.status
+		const isRunning = planFactStatus?.is_running
+
+		if (!startStatus && !backendStatus && !isRunning) return null
+
+		let icon = null
+		let message = ''
+		let color = ''
+
+		if (startStatus === 'running' || isRunning) {
+			icon = <RotateCwIcon className='animate-spin w-5 h-5' />
+			message = 'Аналіз виконується'
+			color = 'text-blue-600'
+		} else if (backendStatus === 'success') {
+			icon = <CheckCircle2Icon className='w-5 h-5' />
+			message = 'Аналіз успішно завершено'
+			color = 'text-green-600'
+		} else if (backendStatus === 'error') {
+			icon = <XCircleIcon className='w-5 h-5' />
+			message = 'Помилка під час аналізу'
+			color = 'text-red-600'
+		} else {
+			message = 'Статус невідомий'
+			color = 'text-gray-600'
+		}
+
+		return (
+			<div className={`flex items-center gap-2 mt-2 ${color}`}>
+				{icon}
+				<span className='text-sm'>{message}</span>
+
+				<Button
+					onClick={() => refetch()}
+					disabled={isPlanFactStartPending}
+					variant='outline'
+					className='self-start flex items-center gap-2'
+				>
+					<RotateCwIcon className='w-4 h-4' />
+					Оновити статус
+				</Button>
+			</div>
+		)
+	}
+
 	return (
 		<Card>
 			<CardHeader>
@@ -177,7 +204,6 @@ export function InfoPicker() {
 			</CardHeader>
 			<CardContent className='space-y-10'>
 				<div className='space-y-2'>
-					<h3 className='text-lg font-medium'>Період</h3>
 					<Tabs
 						value={preset}
 						onValueChange={value => applyDatePreset(value as DatePreset)}
@@ -193,42 +219,23 @@ export function InfoPicker() {
 					{preset === 'custom' ? (
 						<div className='flex flex-col gap-4'>
 							<div className='flex gap-4'>
-								{renderDateField('start', 'Початкова дата', dates.start)}
-								{renderDateField('end', 'Кінцева дата', dates.end)}
+								{renderDateField(
+									'start',
+									'Початкова дата',
+									dates.start,
+									isPlanFactStartPending
+								)}
+								{renderDateField(
+									'end',
+									'Кінцева дата',
+									dates.end,
+									isPlanFactStartPending
+								)}
 							</div>
 						</div>
 					) : (
 						<div className='flex flex-col gap-2'>{getDateRangeSummary()}</div>
 					)}
-					<Button
-						onClick={applyDates}
-						disabled={isPlanFactStartPending}
-						className='self-end flex items-center gap-2'
-					>
-						{isPlanFactStartPending ? <LoaderIcon /> : 'Запустити'}
-					</Button>
-					<div className='text-sm text-neutral-500 flex items-center gap-3'>
-						<div>
-							Статус план-факт аналізу:{' '}
-							<b>
-								{isStatusLoading || isStatusRefetching
-									? '...'
-									: planFactStatus?.status}
-							</b>
-						</div>
-						<Button
-							variant='outline'
-							size='icon'
-							onClick={() => refetch()}
-							disabled={isStatusRefetching}
-						>
-							{isStatusRefetching ? (
-								<LoaderIcon className='animate-spin' />
-							) : (
-								<RotateCwIcon />
-							)}
-						</Button>
-					</div>
 				</div>
 
 				<div className='space-y-2'>
@@ -239,11 +246,13 @@ export function InfoPicker() {
 						<div className='space-y-2 flex flex-col'>
 							<Label htmlFor='budget-version'>Версія бюджету</Label>
 							<Select
+								disabled={isPlanFactStartPending}
 								value={selectedBudgetVersion?.id.toString() ?? ''}
 								onValueChange={id => {
 									setSelectedBudgetVersion(
 										budgetVersions.find(version => version.id === Number(id))
 									)
+									applyBudgetVersion()
 								}}
 							>
 								<SelectTrigger className='w-full'>
@@ -265,7 +274,7 @@ export function InfoPicker() {
 							)}
 							<div className='flex items-center gap-2'>
 								<Button
-									disabled={isPending}
+									disabled={isPending || isPlanFactStartPending}
 									onClick={async () => {
 										try {
 											if (!selectedBudgetVersion?.id) return
@@ -273,7 +282,7 @@ export function InfoPicker() {
 										} catch {}
 									}}
 									variant='destructive'
-									className='self-end flex items-center gap-2'
+									className='self-end flex items-center gap-2 bg-transparent border border-destructive text-destructive hover:text-white'
 								>
 									{isPending && <LoaderIcon className='animate-spin' />}
 									Видалити
@@ -286,12 +295,31 @@ export function InfoPicker() {
 				</div>
 
 				<Button
-					disabled={isPending}
-					onClick={applyBudgetVersion}
-					className='self-end'
+					onClick={applyDates}
+					disabled={
+						isPlanFactStartPending ||
+						!selectedBudgetVersion ||
+						!dates.start ||
+						!dates.end ||
+						(dates.start &&
+							dates.end &&
+							dates.end.getTime() < dates.start.getTime())
+					}
+					title={
+						!selectedBudgetVersion || !dates.start || !dates.end
+							? 'Оберіть період і версію бюджету'
+							: dates.start &&
+							  dates.end &&
+							  dates.end.getTime() < dates.start.getTime()
+							? 'Кінцева дата не може бути меншою за початкову'
+							: ''
+					}
+					className='self-end flex items-center gap-2 disabled:pointer-events-auto'
 				>
-					Застосувати
+					Запустити аналіз
 				</Button>
+
+				{renderPlanFactStatus()}
 			</CardContent>
 		</Card>
 	)

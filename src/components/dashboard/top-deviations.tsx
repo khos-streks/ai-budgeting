@@ -61,7 +61,7 @@ export const TopDeviations = () => {
 	return (
 		<Card className='w-full'>
 			<CardHeader>
-				<CardTitle>ТОП-4 статті витрат по бюджетам</CardTitle>
+				<CardTitle>ТОП-4 витрат та доходів по бюджетам</CardTitle>
 			</CardHeader>
 			<CardContent>
 				{isLoading ? (
@@ -144,7 +144,7 @@ export const TopDeviations = () => {
 						{/* XLSX quantity metrics rendering with logistic type select */}
 						<div className='mt-6'>
 							<div className='font-semibold mb-2'>
-								Кількісні показники (Excel)
+								Кількісні показники
 							</div>
 							<div className='mb-2 max-w-xs'>
 								<Select
