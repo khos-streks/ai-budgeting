@@ -135,8 +135,6 @@ export function InfoPicker() {
 		} catch {}
 	}
 
-	const applyBudgetVersion = () => setBudgetVersion(selectedBudgetVersion)
-
 	const renderDateField = (
 		type: 'start' | 'end',
 		label: string,
@@ -247,10 +245,9 @@ export function InfoPicker() {
 								disabled={isPlanFactStartPending}
 								value={selectedBudgetVersion?.id.toString() ?? ''}
 								onValueChange={id => {
-									setSelectedBudgetVersion(
-										budgetVersions.find(version => version.id === Number(id))
-									)
-									applyBudgetVersion()
+									const version = budgetVersions.find(v => v.id === Number(id))
+									setSelectedBudgetVersion(version)
+									setBudgetVersion(version)
 								}}
 							>
 								<SelectTrigger className='w-full'>
