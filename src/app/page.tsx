@@ -8,13 +8,13 @@ import { StartBudgeting } from '@/components/dashboard/start-budgeting'
 import { SummaryReport } from '@/components/dashboard/summary-report'
 import { SummaryTable } from '@/components/dashboard/summary-table'
 import { TopDeviations } from '@/components/dashboard/top-deviations'
-import { BudgetVersionContextProvider } from '@/contexts/budget-version-context'
+import { InfoContextProvider } from '@/contexts/budget-version-context'
 
 export default function Home() {
 	return (
 		<>
 			<main className='py-6 mx-auto grid grid-cols-[1fr_3fr] gap-6 max-xl:grid-cols-2 max-lg:grid-cols-1 max-w-full px-4'>
-				<BudgetVersionContextProvider>
+				<InfoContextProvider>
 					<div className='space-y-10 max-md:contents'>
 						<InfoPicker />
 						<StartBudgeting />
@@ -29,7 +29,7 @@ export default function Home() {
 						<PlanFactTable />
 						<SummaryTable />
 					</div>
-				</BudgetVersionContextProvider>
+				</InfoContextProvider>
 			</main>
 		</>
 	)

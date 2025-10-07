@@ -14,12 +14,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '../ui/select'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/budget-version-context'
 
 export function KeyIndicators() {
 	const { data: filters, isLoading: isFiltersLoading } =
 		useKeyIndicatorsFilters()
-	const { budgetVersion } = useBudgetVersionContext()
+	const { budgetVersion } = useInfoContext()
 
 	const [currentIndicator, setCurrentIndicator] = useState<string>('')
 

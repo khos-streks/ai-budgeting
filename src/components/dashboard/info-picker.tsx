@@ -12,12 +12,7 @@ import {
 	startOfQuarter,
 	startOfYear,
 } from 'date-fns'
-import {
-	LoaderIcon,
-	RotateCwIcon,
-	CheckCircle2Icon,
-	XCircleIcon,
-} from 'lucide-react'
+import { LoaderIcon, RotateCwIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import 'react-day-picker/dist/style.css'
 import { Button } from '../ui/button'
@@ -32,26 +27,39 @@ import {
 	SelectValue,
 } from '../ui/select'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
 import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
 import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
+import clsx from 'clsx'
+import { useInfoContext } from '@/contexts/budget-version-context'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
 export function InfoPicker() {
-	const { budgetVersion, setBudgetVersion } = useBudgetVersionContext()
+	const {
+		startDate,
+		endDate,
+		setStartDate,
+		setEndDate,
+		budgetVersion,
+		setBudgetVersion,
+	} = useInfoContext()
 	const {
 		mutateAsync: startPlanFact,
 		isPending: isPlanFactStartPending,
 		data: planFactStartData,
 	} = useStartPlanFact()
-	const { data: planFactStatus, refetch } = useGetPlanFactStatus()
+	const {
+		data: planFactStatus,
+		refetch,
+		isRefetching: isStatusRefetching,
+		isLoading: isStatusLoading,
+	} = useGetPlanFactStatus()
 	const [dateRange, setDateRange] = useState<{
 		startDate: string
 		endDate: string
 	}>({
-		startDate: `${new Date().getFullYear()}-01-01`,
-		endDate: `${new Date().getFullYear()}-12-31`,
+		startDate,
+		endDate,
 	})
 	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
@@ -69,7 +77,7 @@ export function InfoPicker() {
 	})
 
 	function parseDate(dateString: string): Date | undefined {
-		const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date())
+		const parsedDate = parse(dateString, 'yyyy-MM', new Date())
 		return isValid(parsedDate) ? parsedDate : undefined
 	}
 
@@ -100,16 +108,17 @@ export function InfoPicker() {
 			default:
 				return
 		}
-		const formattedStartDate = format(startDate, 'yyyy-MM-dd')
-		const formattedEndDate = format(endDate, 'yyyy-MM-dd')
+		const formattedStartDate = format(startDate, 'yyyy-MM')
+		const formattedEndDate = format(endDate, 'yyyy-MM')
 		setInputValues({ start: formattedStartDate, end: formattedEndDate })
 		setDates({ start: startDate, end: endDate })
 	}
 
 	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
-		const formattedDate = format(day, 'yyyy-MM-dd')
+		const formattedDate = format(day, 'yyyy-MM')
 		setDates(prev => ({ ...prev, [type]: day }))
 		setInputValues(prev => ({ ...prev, [type]: formattedDate }))
+		type === 'start' ? setStartDate(formattedDate) : setEndDate(formattedDate)
 		setPreset('custom')
 	}
 
@@ -158,39 +167,26 @@ export function InfoPicker() {
 
 		if (!startStatus && !backendStatus && !isRunning) return null
 
-		let icon = null
-		let message = ''
-		let color = ''
-
-		if (startStatus === 'running' || isRunning) {
-			icon = <RotateCwIcon className='animate-spin w-5 h-5' />
-			message = 'Аналіз виконується'
-			color = 'text-blue-600'
-		} else if (backendStatus === 'success') {
-			icon = <CheckCircle2Icon className='w-5 h-5' />
-			message = 'Аналіз успішно завершено'
-			color = 'text-green-600'
-		} else if (backendStatus === 'error') {
-			icon = <XCircleIcon className='w-5 h-5' />
-			message = 'Помилка під час аналізу'
-			color = 'text-red-600'
-		} else {
-			message = 'Статус невідомий'
-			color = 'text-gray-600'
-		}
+		let message = backendStatus ?? startStatus
 
 		return (
-			<div className={`flex items-center gap-2 mt-2 ${color}`}>
-				{icon}
+			<div className={`flex items-center gap-2 mt-2 text-gray-600`}>
 				<span className='text-sm'>{message}</span>
 
 				<Button
 					onClick={() => refetch()}
-					disabled={isPlanFactStartPending}
+					disabled={
+						isPlanFactStartPending || isStatusRefetching || isStatusRefetching
+					}
 					variant='outline'
+					size='sm'
 					className='self-start flex items-center gap-2'
 				>
-					<RotateCwIcon className='w-4 h-4' />
+					<RotateCwIcon
+						className={clsx('w-4 h-4 transition-transform duration-500', {
+							'rotate-[360deg]': isStatusLoading || isStatusRefetching,
+						})}
+					/>
 					Оновити статус
 				</Button>
 			</div>
@@ -274,7 +270,11 @@ export function InfoPicker() {
 							)}
 							<div className='flex items-center gap-2'>
 								<Button
-									disabled={isPending || isPlanFactStartPending}
+									disabled={
+										isPending ||
+										isPlanFactStartPending ||
+										!selectedBudgetVersion
+									}
 									onClick={async () => {
 										try {
 											if (!selectedBudgetVersion?.id) return
@@ -303,14 +303,16 @@ export function InfoPicker() {
 						!dates.end ||
 						(dates.start &&
 							dates.end &&
-							dates.end.getTime() < dates.start.getTime())
+							new Date(`${dates.end}-01`).getTime() <
+								new Date(`${dates.start}-01`).getTime())
 					}
 					title={
 						!selectedBudgetVersion || !dates.start || !dates.end
 							? 'Оберіть період і версію бюджету'
 							: dates.start &&
 							  dates.end &&
-							  dates.end.getTime() < dates.start.getTime()
+							  new Date(`${dates.end}-01`).getTime() <
+									new Date(`${dates.start}-01`).getTime()
 							? 'Кінцева дата не може бути меншою за початкову'
 							: ''
 					}

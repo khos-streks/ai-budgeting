@@ -12,10 +12,10 @@ import { useTableFilters } from '@/hooks/useTableFilters'
 import { PLAN_FACT_QUICK_FILTERS, PlanFactFilters } from '@/typing/filters'
 import { useEffect, useState } from 'react'
 import { SortingInfo } from './sorting-info'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/budget-version-context'
 
 export function PlanFactTable() {
-	const { budgetVersion } = useBudgetVersionContext()
+	const { startDate, endDate, budgetVersion } = useInfoContext()
 	const { data: filterOptions, isLoading: filtersLoading } =
 		useMainTableFilters()
 	const [fileUrl, setFileUrl] = useState<string | null>(null)
@@ -31,6 +31,8 @@ export function PlanFactTable() {
 	} = useTableFilters(PLAN_FACT_QUICK_FILTERS)
 
 	const { data: fileData, isLoading } = usePlanFactTable(
+		startDate,
+		endDate,
 		budgetVersion?.version,
 		filters as PlanFactFilters
 	)

@@ -7,13 +7,13 @@ import {
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/budget-version-context'
 import { useConsolidatedFilters, useSummaryData } from '@/hooks/useBudgeting'
 import { useTableFilters } from '@/hooks/useTableFilters'
 import { useEffect, useState } from 'react'
 
 export function SummaryTable() {
-	const { budgetVersion } = useBudgetVersionContext()
+	const { budgetVersion } = useInfoContext()
 	const { data: filterOptions, isLoading: filtersLoading } =
 		useConsolidatedFilters()
 

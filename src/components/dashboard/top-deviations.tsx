@@ -11,10 +11,10 @@ import {
 import { useEffect, useState } from 'react'
 import { ExcelHtmlViewer } from '../ui/excel-viewer'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/budget-version-context'
 
 export const TopDeviations = () => {
-	const { budgetVersion } = useBudgetVersionContext()
+	const { startDate, endDate, budgetVersion } = useInfoContext()
 	const [currentBudgetType, setCurrentBudgetType] = useState<
 		{ key: string; label: string } | undefined
 	>(undefined)
@@ -23,9 +23,10 @@ export const TopDeviations = () => {
 	>(undefined)
 	const { data: budgetTypes, isLoading: isBudgetTypesLoading } =
 		useGetBudgetTypes()
-	const { data: logisticTypes } =
-		useGetLogisticsTypes()
+	const { data: logisticTypes } = useGetLogisticsTypes()
 	const { data, isLoading: isTopDeviationsLoading } = useTopDeviations(
+		startDate,
+		endDate,
 		currentBudgetType,
 		budgetVersion?.version
 	)
@@ -143,9 +144,7 @@ export const TopDeviations = () => {
 						</Tabs>
 						{/* XLSX quantity metrics rendering with logistic type select */}
 						<div className='mt-6'>
-							<div className='font-semibold mb-2'>
-								Кількісні показники
-							</div>
+							<div className='font-semibold mb-2'>Кількісні показники</div>
 							<div className='mb-2 max-w-xs'>
 								<Select
 									value={selectedLogisticType}

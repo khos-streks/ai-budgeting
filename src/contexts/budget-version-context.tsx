@@ -3,41 +3,53 @@
 import { IBudgetVersion } from '@/typing/budget-version'
 import { createContext, ReactNode, useContext, useState } from 'react'
 
-interface BudgetVersionContextType {
+interface InfoContextType {
+	startDate: string
+	endDate: string
 	budgetVersion?: IBudgetVersion
+	setStartDate: (date: string) => void
+	setEndDate: (date: string) => void
 	setBudgetVersion: (version: IBudgetVersion | undefined) => void
 }
 
-const BudgetVersionContext = createContext<
-	BudgetVersionContextType | undefined
->(undefined)
+const InfoContext = createContext<InfoContextType | undefined>(undefined)
 
-export function BudgetVersionContextProvider({
+export function InfoContextProvider({
 	children,
 }: {
 	children: ReactNode
 }) {
+	const [startDate, setStartDate] = useState<string>(
+		`${new Date().getFullYear()}-01`
+	)
+	const [endDate, setEndDate] = useState<string>(
+		`${new Date().getFullYear() + 1}-01`
+	)
 	const [budgetVersion, setBudgetVersion] = useState<
 		IBudgetVersion | undefined
 	>(undefined)
 
 	return (
-		<BudgetVersionContext.Provider
+		<InfoContext.Provider
 			value={{
+				startDate,
+				endDate,
 				budgetVersion,
 				setBudgetVersion,
+				setStartDate,
+				setEndDate,
 			}}
 		>
 			{children}
-		</BudgetVersionContext.Provider>
+		</InfoContext.Provider>
 	)
 }
 
-export function useBudgetVersionContext() {
-	const context = useContext(BudgetVersionContext)
+export function useInfoContext() {
+	const context = useContext(InfoContext)
 	if (context === undefined) {
 		throw new Error(
-			'useBudgetVersionContext must be used within a DateProvider'
+			'useInfoContext must be used within a InfoContextProvider'
 		)
 	}
 	return context

@@ -1,12 +1,14 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/budget-version-context'
 import { useGetSummaryReport } from '@/hooks/usePlanFact'
 
 export function SummaryReport() {
-	const { budgetVersion } = useBudgetVersionContext()
+	const { startDate, endDate, budgetVersion } = useInfoContext()
 	const { data, isLoading } = useGetSummaryReport(
+		startDate,
+		endDate,
 		budgetVersion?.version
 	)
 

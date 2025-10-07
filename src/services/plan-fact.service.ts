@@ -7,8 +7,12 @@ interface AnomalyData {
 }
 
 class PlanFactService {
-	async getPlanFact(budgetVersion?: number) {
-		const params = new URLSearchParams()
+	async getPlanFact(
+		start_date: string,
+		end_date: string,
+		budgetVersion?: number
+	) {
+		const params = new URLSearchParams({ start_date, end_date })
 
 		if (budgetVersion) {
 			params.append('budget_version', budgetVersion.toString())
@@ -25,8 +29,13 @@ class PlanFactService {
 		).data
 	}
 
-	async getMainTable(budgetVersion?: number, filters?: PlanFactFilters) {
-		const params = new URLSearchParams()
+	async getMainTable(
+		start_date: string,
+		end_date: string,
+		budgetVersion?: number,
+		filters?: PlanFactFilters
+	) {
+		const params = new URLSearchParams({ start_date, end_date })
 
 		if (budgetVersion) {
 			params.append('budget_version', budgetVersion.toString())
@@ -65,11 +74,15 @@ class PlanFactService {
 	}
 
 	async getTopDeviations(
+		start_date: string,
+		end_date: string,
 		budgetType: { key: string; label: string },
 		budgetVersion?: number
 	) {
 		const params = new URLSearchParams({
 			logistic_type: budgetType?.key,
+			start_date,
+			end_date,
 		})
 
 		if (budgetVersion) {
@@ -157,8 +170,12 @@ class PlanFactService {
 		return response.data
 	}
 
-	async getSummaryReport(budget_version?: number) {
-		const params = new URLSearchParams()
+	async getSummaryReport(
+		start_date: string,
+		end_date: string,
+		budget_version?: number
+	) {
+		const params = new URLSearchParams({ start_date, end_date })
 
 		if (budget_version) {
 			params.append('budget_version', budget_version.toString())

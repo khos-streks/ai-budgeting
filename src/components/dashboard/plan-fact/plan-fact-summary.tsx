@@ -7,14 +7,16 @@ import { ReactNode } from 'react'
 import { AnomaliesItem } from './anomalies-item'
 import { SummaryItem } from './summary-item'
 import { SummaryData } from './summary-utils'
-import { useBudgetVersionContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/budget-version-context'
 
 // Main component
 export function PlanFactSummary() {
-	const { budgetVersion } = useBudgetVersionContext()
+	const { startDate, endDate, budgetVersion } = useInfoContext()
 	const { data: budgetCounts, isLoading: isBudgetCountsLoading } =
 		useBudgetCounts()
 	const { data, isLoading: isPlanFactLoading } = usePlanFactSummary(
+		startDate,
+		endDate,
 		budgetVersion?.version
 	)
 
@@ -37,9 +39,7 @@ export function PlanFactSummary() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>
-					Узагальнена інформація
-				</CardTitle>
+				<CardTitle>Узагальнена інформація</CardTitle>
 			</CardHeader>
 			<CardContent>
 				{isLoading ? (

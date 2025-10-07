@@ -2,24 +2,37 @@ import { planFactService } from '@/services/plan-fact.service'
 import { PlanFactFilters } from '@/typing/filters'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-export function usePlanFactSummary(budgetVersion?: number) {
+export function usePlanFactSummary(
+	startDate: string,
+	endDate: string,
+	budgetVersion?: number
+) {
 	return useQuery({
-		queryKey: ['plan-fact-summary', budgetVersion],
-		queryFn: () => planFactService.getPlanFact(budgetVersion),
+		queryKey: ['plan-fact-summary', startDate, endDate, budgetVersion],
+		queryFn: () =>
+			planFactService.getPlanFact(startDate, endDate, budgetVersion),
 		refetchOnWindowFocus: false,
-		enabled: !!budgetVersion
+		enabled: !!budgetVersion,
 	})
 }
 
 export function usePlanFactTable(
+	startDate: string,
+	endDate: string,
 	budgetVersion?: number,
 	filters?: PlanFactFilters
 ) {
 	return useQuery({
-		queryKey: ['plan-fact-table', budgetVersion, filters],
-		queryFn: () => planFactService.getMainTable(budgetVersion, filters),
+		queryKey: ['plan-fact-table', startDate, endDate, budgetVersion, filters],
+		queryFn: () =>
+			planFactService.getMainTable(
+				startDate,
+				endDate,
+				budgetVersion,
+				filters
+			),
 		refetchOnWindowFocus: false,
-		enabled: !!budgetVersion
+		enabled: !!budgetVersion,
 	})
 }
 
@@ -40,14 +53,27 @@ export function useKeyIndicatorsFilters() {
 }
 
 export function useTopDeviations(
+	startDate: string,
+	endDate: string,
 	budgetType: { key: string; label: string } | undefined,
 	budgetVersion?: number
 ) {
 	return useQuery({
-		queryKey: ['top-deviations', budgetType, budgetVersion],
+		queryKey: [
+			'top-deviations',
+			startDate,
+			endDate,
+			budgetType,
+			budgetVersion,
+		],
 		queryFn: () => {
 			if (!budgetType) return
-			return planFactService.getTopDeviations(budgetType, budgetVersion)
+			return planFactService.getTopDeviations(
+				startDate,
+				endDate,
+				budgetType,
+				budgetVersion
+			)
 		},
 		enabled: !!budgetType && !!budgetVersion,
 		refetchOnWindowFocus: false,
@@ -68,9 +94,9 @@ export function useStartPlanFact() {
 		}) => {
 			return await planFactService.start(startDate, endDate, budgetVersion)
 		},
-		onSuccess: () =>{
-			queryClient.invalidateQueries({queryKey: ['get plan-fact status']})
-		}
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['get plan-fact status'] })
+		},
 	})
 }
 
@@ -127,12 +153,20 @@ export function useGetKeyIndicators(
 	})
 }
 
-export function useGetSummaryReport(budgetVersion?: number) {
+export function useGetSummaryReport(
+	startDate: string,
+	endDate: string,
+	budgetVersion?: number
+) {
 	return useQuery({
-		queryKey: ['get summary report', budgetVersion],
+		queryKey: ['get summary report', startDate, endDate, budgetVersion],
 		queryFn: () => {
 			if (budgetVersion) {
-				return planFactService.getSummaryReport(budgetVersion)
+				return planFactService.getSummaryReport(
+					startDate,
+					endDate,
+					budgetVersion
+				)
 			}
 		},
 		refetchOnWindowFocus: false,
