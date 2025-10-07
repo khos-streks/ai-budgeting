@@ -7,12 +7,12 @@ import {
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
+import { useInfoContext } from '@/contexts/info-context'
 import { useMainTableFilters, usePlanFactTable } from '@/hooks/usePlanFact'
 import { useTableFilters } from '@/hooks/useTableFilters'
 import { PLAN_FACT_QUICK_FILTERS, PlanFactFilters } from '@/typing/filters'
 import { useEffect, useState } from 'react'
 import { SortingInfo } from './sorting-info'
-import { useInfoContext } from '@/contexts/budget-version-context'
 
 export function PlanFactTable() {
 	const { startDate, endDate, budgetVersion } = useInfoContext()

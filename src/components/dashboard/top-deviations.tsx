@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useInfoContext } from '@/contexts/info-context'
 import {
 	useGetBudgetTypes,
 	useGetLogisticsTypes,
@@ -11,7 +12,6 @@ import {
 import { useEffect, useState } from 'react'
 import { ExcelHtmlViewer } from '../ui/excel-viewer'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '../ui/select'
-import { useInfoContext } from '@/contexts/budget-version-context'
 
 export const TopDeviations = () => {
 	const { startDate, endDate, budgetVersion } = useInfoContext()
@@ -100,7 +100,7 @@ export const TopDeviations = () => {
 										>
 											<div className='flex-1'>
 												<div className='font-medium text-red-900'>
-													{item.budget_item}
+													{item.macro_item}
 												</div>
 												<div className='text-sm text-red-700'>
 													Відхилення: {formatCurrency(item.deviation_amount)} (
@@ -125,7 +125,7 @@ export const TopDeviations = () => {
 										>
 											<div className='flex-1'>
 												<div className='font-medium text-green-900'>
-													{item.budget_item}
+													{item.macro_item}
 												</div>
 												<div className='text-sm text-green-700'>
 													Відхилення: {formatCurrency(item.deviation_amount)} (

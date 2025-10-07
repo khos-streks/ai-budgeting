@@ -3,15 +3,16 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
+import { DayPicker } from 'react-day-picker'
+import 'react-day-picker/dist/style.css'
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
 
-interface MonthYearPickerProps {
+interface DatePickerProps {
 	id: string
 	label?: string
 	value: Date
@@ -19,23 +20,8 @@ interface MonthYearPickerProps {
 	disabled?: boolean
 }
 
-export function DatePicker({
-	id,
-	label,
-	value,
-	onChange,
-	disabled = false,
-}: MonthYearPickerProps) {
+export function DatePicker({ id, label, value, onChange, disabled = false }: DatePickerProps) {
 	const [open, setOpen] = useState(false)
-	const [tempYear, setTempYear] = useState(value.getFullYear())
-	const [tempMonth, setTempMonth] = useState(value.getMonth())
-
-	const months = [
-		'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
-		'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
-	]
-
-	const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - 25 + i)
 
 	return (
 		<div className='flex flex-col gap-1 w-full'>
@@ -51,7 +37,7 @@ export function DatePicker({
 							id={id}
 							disabled={disabled}
 							type='text'
-							value={format(value, 'yyyy-MM')}
+							value={format(value, 'yyyy-MM-dd')}
 							readOnly
 							className='pr-10 cursor-pointer'
 						/>
@@ -59,45 +45,22 @@ export function DatePicker({
 					</div>
 				</PopoverTrigger>
 				<PopoverContent
-					className='p-3 rounded-xl shadow-lg border bg-white w-64'
+					className='p-2 rounded-xl shadow-lg border bg-white w-auto pointer-events-auto'
 					align='start'
 					sideOffset={8}
 				>
-					<div className='flex flex-col gap-2'>
-						<select
-							value={tempYear}
-							onChange={e => setTempYear(Number(e.target.value))}
-							className='border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary'
-						>
-							{years.map(year => (
-								<option key={year} value={year}>
-									{year}
-								</option>
-							))}
-						</select>
-
-						<div className='grid grid-cols-3 gap-2'>
-							{months.map((month, index) => (
-								<button
-									key={month}
-									type='button'
-									onClick={() => {
-										setTempMonth(index)
-										onChange(new Date(tempYear, index, 1))
-										setOpen(false)
-									}}
-									className={cn(
-										'text-sm rounded-md px-2 py-1 transition-colors',
-										index === tempMonth
-											? 'bg-primary text-white'
-											: 'hover:bg-muted'
-									)}
-								>
-									{month.slice(0, 3)}
-								</button>
-							))}
-						</div>
-					</div>
+					<DayPicker
+						mode='single'
+						selected={value}
+						onDayClick={day => {
+							if (day) {
+								onChange(day)
+								setOpen(false)
+							}
+						}}
+						defaultMonth={value}
+						className='text-sm'
+					/>
 				</PopoverContent>
 			</Popover>
 		</div>

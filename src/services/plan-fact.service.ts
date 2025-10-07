@@ -92,12 +92,12 @@ class PlanFactService {
 		return (
 			await api.get<{
 				negative: {
-					budget_item: string
+					macro_item: string
 					deviation_amount: number
 					deviation_percent: number
 				}[]
 				positive: {
-					budget_item: string
+					macro_item: string
 					deviation_amount: number
 					deviation_percent: number
 				}[]

@@ -17,6 +17,8 @@ export const getLabel = (key: string) => {
 	switch (key) {
 		case 'total_plan':
 			return 'Загальний план'
+		case 'total_fact':
+			return 'Загальний факт'
 		case 'plan_change_percent':
 			return 'Відхилення від плану'
 		case 'execution_percent':
@@ -31,7 +33,7 @@ export const getLabel = (key: string) => {
 }
 
 export const formatValue = (key: string, value: any) => {
-	if (key === 'total_plan') {
+	if (key === 'total_plan' || key === 'total_fact') {
 		return new Intl.NumberFormat('uk-UA', {
 			style: 'currency',
 			currency: 'UAH',

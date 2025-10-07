@@ -8,7 +8,7 @@ import { StartBudgeting } from '@/components/dashboard/start-budgeting'
 import { SummaryReport } from '@/components/dashboard/summary-report'
 import { SummaryTable } from '@/components/dashboard/summary-table'
 import { TopDeviations } from '@/components/dashboard/top-deviations'
-import { InfoContextProvider } from '@/contexts/budget-version-context'
+import { InfoContextProvider } from '@/contexts/info-context'
 
 export default function Home() {
 	return (

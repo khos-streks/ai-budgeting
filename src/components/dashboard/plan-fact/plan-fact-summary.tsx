@@ -1,13 +1,13 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useInfoContext } from '@/contexts/info-context'
 import { useBudgetCounts } from '@/hooks/useBudgeting'
 import { usePlanFactSummary } from '@/hooks/usePlanFact'
 import { ReactNode } from 'react'
 import { AnomaliesItem } from './anomalies-item'
 import { SummaryItem } from './summary-item'
 import { SummaryData } from './summary-utils'
-import { useInfoContext } from '@/contexts/budget-version-context'
 
 // Main component
 export function PlanFactSummary() {

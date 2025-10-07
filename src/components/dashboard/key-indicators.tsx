@@ -1,5 +1,6 @@
 'use client'
 
+import { useInfoContext } from '@/contexts/info-context'
 import {
 	useGetKeyIndicators,
 	useKeyIndicatorsFilters,
@@ -14,7 +15,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '../ui/select'
-import { useInfoContext } from '@/contexts/budget-version-context'
 
 export function KeyIndicators() {
 	const { data: filters, isLoading: isFiltersLoading } =

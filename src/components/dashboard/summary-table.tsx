@@ -7,7 +7,7 @@ import {
 	QuickFilters,
 	TableHeader,
 } from '@/components/ui/table-filters'
-import { useInfoContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/info-context'
 import { useConsolidatedFilters, useSummaryData } from '@/hooks/useBudgeting'
 import { useTableFilters } from '@/hooks/useTableFilters'
 import { useEffect, useState } from 'react'

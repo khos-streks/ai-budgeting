@@ -14,16 +14,12 @@ interface InfoContextType {
 
 const InfoContext = createContext<InfoContextType | undefined>(undefined)
 
-export function InfoContextProvider({
-	children,
-}: {
-	children: ReactNode
-}) {
+export function InfoContextProvider({ children }: { children: ReactNode }) {
 	const [startDate, setStartDate] = useState<string>(
-		`${new Date().getFullYear()}-01`
+		`${new Date().getFullYear()}-01-01`
 	)
 	const [endDate, setEndDate] = useState<string>(
-		`${new Date().getFullYear() + 1}-01`
+		`${new Date().getFullYear()}-12-31`
 	)
 	const [budgetVersion, setBudgetVersion] = useState<
 		IBudgetVersion | undefined
@@ -48,9 +44,7 @@ export function InfoContextProvider({
 export function useInfoContext() {
 	const context = useContext(InfoContext)
 	if (context === undefined) {
-		throw new Error(
-			'useInfoContext must be used within a InfoContextProvider'
-		)
+		throw new Error('useInfoContext must be used within a InfoContextProvider')
 	}
 	return context
 }

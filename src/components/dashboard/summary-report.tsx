@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useInfoContext } from '@/contexts/budget-version-context'
+import { useInfoContext } from '@/contexts/info-context'
 import { useGetSummaryReport } from '@/hooks/usePlanFact'
 
 export function SummaryReport() {

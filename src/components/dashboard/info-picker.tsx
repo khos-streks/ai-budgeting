@@ -1,6 +1,10 @@
 'use client'
 
+import { useInfoContext } from '@/contexts/info-context'
+import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
+import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
 import { IBudgetVersion } from '@/typing/budget-version'
+import clsx from 'clsx'
 import {
 	endOfMonth,
 	endOfQuarter,
@@ -27,10 +31,6 @@ import {
 	SelectValue,
 } from '../ui/select'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
-import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
-import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
-import clsx from 'clsx'
-import { useInfoContext } from '@/contexts/budget-version-context'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
@@ -77,7 +77,7 @@ export function InfoPicker() {
 	})
 
 	function parseDate(dateString: string): Date | undefined {
-		const parsedDate = parse(dateString, 'yyyy-MM', new Date())
+		const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date())
 		return isValid(parsedDate) ? parsedDate : undefined
 	}
 
@@ -108,14 +108,16 @@ export function InfoPicker() {
 			default:
 				return
 		}
-		const formattedStartDate = format(startDate, 'yyyy-MM')
-		const formattedEndDate = format(endDate, 'yyyy-MM')
+		const formattedStartDate = format(startDate, 'yyyy-MM-dd')
+		const formattedEndDate = format(endDate, 'yyyy-MM-dd')
 		setInputValues({ start: formattedStartDate, end: formattedEndDate })
+		setStartDate(formattedStartDate)
+		setEndDate(formattedEndDate)
 		setDates({ start: startDate, end: endDate })
 	}
 
 	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
-		const formattedDate = format(day, 'yyyy-MM')
+		const formattedDate = format(day, 'yyyy-MM-dd')
 		setDates(prev => ({ ...prev, [type]: day }))
 		setInputValues(prev => ({ ...prev, [type]: formattedDate }))
 		type === 'start' ? setStartDate(formattedDate) : setEndDate(formattedDate)
@@ -303,16 +305,14 @@ export function InfoPicker() {
 						!dates.end ||
 						(dates.start &&
 							dates.end &&
-							new Date(`${dates.end}-01`).getTime() <
-								new Date(`${dates.start}-01`).getTime())
+							new Date(dates.end).getTime() < new Date(dates.start).getTime())
 					}
 					title={
 						!selectedBudgetVersion || !dates.start || !dates.end
 							? 'Оберіть період і версію бюджету'
 							: dates.start &&
 							  dates.end &&
-							  new Date(`${dates.end}-01`).getTime() <
-									new Date(`${dates.start}-01`).getTime()
+							  new Date(dates.end).getTime() < new Date(dates.start).getTime()
 							? 'Кінцева дата не може бути меншою за початкову'
 							: ''
 					}
