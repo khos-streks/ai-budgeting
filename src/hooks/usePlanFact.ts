@@ -25,12 +25,7 @@ export function usePlanFactTable(
 	return useQuery({
 		queryKey: ['plan-fact-table', startDate, endDate, budgetVersion, filters],
 		queryFn: () =>
-			planFactService.getMainTable(
-				startDate,
-				endDate,
-				budgetVersion,
-				filters
-			),
+			planFactService.getMainTable(startDate, endDate, budgetVersion, filters),
 		refetchOnWindowFocus: false,
 		enabled: !!budgetVersion,
 	})
@@ -59,13 +54,7 @@ export function useTopDeviations(
 	budgetVersion?: number
 ) {
 	return useQuery({
-		queryKey: [
-			'top-deviations',
-			startDate,
-			endDate,
-			budgetType,
-			budgetVersion,
-		],
+		queryKey: ['top-deviations', startDate, endDate, budgetType, budgetVersion],
 		queryFn: () => {
 			if (!budgetType) return
 			return planFactService.getTopDeviations(

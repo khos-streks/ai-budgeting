@@ -1,10 +1,6 @@
 'use client'
 
-import { useInfoContext } from '@/contexts/info-context'
-import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
-import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
-import { IBudgetVersion } from '@/typing/budget-version'
-import clsx from 'clsx'
+import { useEffect, useState } from 'react'
 import {
 	endOfMonth,
 	endOfQuarter,
@@ -17,8 +13,11 @@ import {
 	startOfYear,
 } from 'date-fns'
 import { LoaderIcon, RotateCwIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import 'react-day-picker/dist/style.css'
+import clsx from 'clsx'
+import { useInfoContext } from '@/contexts/info-context'
+import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
+import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
+import { IBudgetVersion } from '@/typing/budget-version'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { DatePicker } from '../ui/date-picker'
@@ -54,27 +53,25 @@ export function InfoPicker() {
 		isRefetching: isStatusRefetching,
 		isLoading: isStatusLoading,
 	} = useGetPlanFactStatus()
-	const [dateRange, setDateRange] = useState<{
-		startDate: string
-		endDate: string
-	}>({
-		startDate,
-		endDate,
-	})
 	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
+
 	const [preset, setPreset] = useState<DatePreset>('custom')
 	const [selectedBudgetVersion, setSelectedBudgetVersion] = useState<
 		IBudgetVersion | undefined
 	>(budgetVersion || undefined)
 	const [inputValues, setInputValues] = useState({
-		start: dateRange.startDate,
-		end: dateRange.endDate,
+		start: startDate,
+		end: endDate,
 	})
 	const [dates, setDates] = useState({
-		start: parseDate(dateRange.startDate),
-		end: parseDate(dateRange.endDate),
+		start: parseDate(startDate),
+		end: parseDate(endDate),
 	})
+	const [timeLeft, setTimeLeft] = useState<number | null>(null)
+	const [isPlanFactRunning, setIsPlanFactRunning] = useState(
+		planFactStatus?.is_running
+	)
 
 	function parseDate(dateString: string): Date | undefined {
 		const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date())
@@ -85,6 +82,28 @@ export function InfoPicker() {
 		setSelectedBudgetVersion(budgetVersions?.[0])
 		setBudgetVersion(budgetVersions?.[0])
 	}, [budgetVersions])
+
+	useEffect(() => {
+		let interval: NodeJS.Timeout | undefined
+		if (isPlanFactRunning) {
+			if (timeLeft === null) setTimeLeft(10 * 60)
+			interval = setInterval(() => {
+				setTimeLeft(prev => {
+					if (prev === null) return null
+					if (prev <= 1) {
+						clearInterval(interval)
+						refetch()
+						return 0
+					}
+					return prev - 1
+				})
+			}, 1000)
+		} else {
+			setTimeLeft(null)
+		}
+		return () => clearInterval(interval)
+	}, [isPlanFactRunning])
+
 
 	const applyDatePreset = (preset: DatePreset) => {
 		setPreset(preset)
@@ -125,14 +144,22 @@ export function InfoPicker() {
 	}
 
 	const applyDates = async () => {
-		setDateRange({ startDate: inputValues.start, endDate: inputValues.end })
 		try {
 			await startPlanFact({
-				...dateRange,
+				startDate: inputValues.start,
+				endDate: inputValues.end,
 				budgetVersion: budgetVersion?.version ?? null,
 			})
+			setTimeLeft(10 * 60)
+			setIsPlanFactRunning(true)
 			refetch()
 		} catch {}
+	}
+
+	const formatTime = (seconds: number) => {
+		const m = Math.floor(seconds / 60)
+		const s = seconds % 60
+		return `${m}:${s.toString().padStart(2, '0')}`
 	}
 
 	const renderDateField = (
@@ -161,23 +188,31 @@ export function InfoPicker() {
 
 	const renderPlanFactStatus = () => {
 		const startStatus = planFactStartData?.status
-
 		const backendStatus = planFactStatus?.status
-		const isRunning = planFactStatus?.is_running
-
-		if (!startStatus && !backendStatus && !isRunning) return null
-
+		if (!startStatus && !backendStatus && !isPlanFactRunning) return null
 		let message = backendStatus ?? startStatus
-
 		return (
-			<div className={`flex items-center gap-2 mt-2 text-gray-600`}>
-				<span className='text-sm'>{message}</span>
-
+			<div className='flex flex-col gap-2 mt-2 text-gray-600'>
+				<div className='flex items-center gap-2'>
+					<span className='text-sm'>
+						{isStatusLoading || isStatusRefetching ? (
+							<div className='flex items-center gap-2'>
+								<LoaderIcon className='animate-spin' size={20} />
+								Завантаження...
+							</div>
+						) : (
+							message
+						)}
+					</span>
+					{isPlanFactRunning && timeLeft !== null && (
+						<span className='text-sm text-muted-foreground'>
+							⏳ Залишилось: ~{formatTime(timeLeft)}
+						</span>
+					)}
+				</div>
 				<Button
 					onClick={() => refetch()}
-					disabled={
-						isPlanFactStartPending || isStatusRefetching || isStatusRefetching
-					}
+					disabled={isPlanFactStartPending || isStatusRefetching}
 					variant='outline'
 					size='sm'
 					className='self-start flex items-center gap-2'

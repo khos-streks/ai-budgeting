@@ -1,5 +1,7 @@
 'use client'
 
+import {  useState } from 'react'
+import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -8,126 +10,109 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { useGetBudgetingStatus, useStartBudgeting } from '@/hooks/useBudgeting'
-import { format } from 'date-fns'
-import { Loader2Icon, RotateCcw } from 'lucide-react'
-import { useState } from 'react'
 import { DatePicker } from '@/components/ui/date-picker'
+import { LoaderIcon, RotateCwIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useGetBudgetingStatus, useStartBudgeting } from '@/hooks/useBudgeting'
 
 export function StartBudgeting() {
-	const { mutateAsync: start, isPending, isSuccess, data } = useStartBudgeting()
+	const { mutateAsync: startBudgeting, isPending, data: startData } = useStartBudgeting()
 	const {
-		data: status,
-		isLoading,
-		isRefetching: isStatusRefetching,
-		refetch: refetchStatus,
+		data: budgetingStatus,
+		isLoading: isStatusLoading,
+		isRefetching,
+		refetch,
 	} = useGetBudgetingStatus()
 
-	const isStatusLoading = isLoading || isStatusRefetching
-
 	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
+	const [isRunning, setIsRunning] = useState<boolean | undefined>(false)
 
 	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
 		setDates(prev => ({ ...prev, [type]: day }))
 	}
 
 	const handleSubmit = async () => {
-		const formattedDates = {
-			startDate: format(dates.start, 'yyyy-MM-dd'),
-			endDate: format(dates.end, 'yyyy-MM-dd'),
-		}
 		try {
-			await start(formattedDates)
-			await refetchStatus()
+			await startBudgeting({
+				startDate: format(dates.start, 'yyyy-MM-dd'),
+				endDate: format(dates.end, 'yyyy-MM-dd'),
+			})
+			setIsRunning(true)
+			await refetch()
 		} catch {}
 	}
 
-	const showStatusOnly = status?.is_running === true
+	const loading = isPending || isStatusLoading || isRefetching
 
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button className='max-sm:w-full max-sm:text-wrap max-[380px]:h-auto!'>
-					Запустити процес бюджетування
-				</Button>
+				<Button className='max-sm:w-full'>Запустити</Button>
 			</DialogTrigger>
-			<DialogContent className='sm:max-w-md'>
+			<DialogContent className='sm:max-w-md space-y-6'>
 				<DialogHeader>
-					<DialogTitle>Статус процесу бюджетування</DialogTitle>
-					<div className='space-y-4 mt-4'>
-						{isLoading ? (
-							<div className='flex items-center gap-2 text-muted-foreground'>
-								<Loader2Icon className='w-4 h-4 animate-spin' />
-								<span>Завантаження статусу...</span>
-							</div>
-						) : showStatusOnly ? (
-							<>
-								<div className='space-y-2 p-4 rounded-md border bg-muted'>
-									<p className='text-sm text-muted-foreground'>
-										<b>Статус:</b> {status.status}
-									</p>
-								</div>
-								<div className='pt-2'>
-									<Button
-										disabled={isStatusLoading}
-										variant='outline'
-										className='w-full flex items-center gap-2'
-										onClick={() => refetchStatus()}
-									>
-										<RotateCcw
-											className={cn(
-												'w-4 h-4 transition-transform duration-700',
-												{
-													'rotate-[-360deg]': isStatusLoading,
-												}
-											)}
-										/>
-										Оновити дані
-									</Button>
-								</div>
-							</>
-						) : isSuccess && data ? (
-							<div className='space-y-2 p-4 rounded-md border bg-muted'>
-								<p className='text-sm text-muted-foreground'>
-									<b>Статус:</b> {data.status}
-								</p>
-								<p className='text-sm text-muted-foreground'>
-									<b>Повідомлення:</b> {data.message}
-								</p>
-							</div>
-						) : (
-							<div className='space-y-4'>
-								<DatePicker
-									id='start-date'
-									label='Дата початку'
-									value={dates.start}
-									onChange={day => handleDaySelect(day, 'start')}
-								/>
-
-								<DatePicker
-									id='end-date'
-									label='Дата закінчення'
-									value={dates.end}
-									onChange={day => handleDaySelect(day, 'end')}
-								/>
-
-								<div className='pt-4'>
-									<Button
-										onClick={handleSubmit}
-										className='w-full flex items-center gap-2'
-										disabled={dates.start > dates.end || isPending}
-									>
-										{isPending && (
-											<Loader2Icon className='w-4 h-4 animate-spin' />
-										)}
-										Запустити бюджетування
-									</Button>
-								</div>
-							</div>
-						)}
-					</div>
+					<DialogTitle>Бюджетування</DialogTitle>
 				</DialogHeader>
+
+				<div className='space-y-4'>
+					<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+						<DatePicker
+							id='start-date'
+							label='Дата початку'
+							value={dates.start}
+							onChange={day => handleDaySelect(day, 'start')}
+							disabled={isRunning || loading}
+						/>
+						<DatePicker
+							id='end-date'
+							label='Дата завершення'
+							value={dates.end}
+							onChange={day => handleDaySelect(day, 'end')}
+							disabled={isRunning || loading}
+						/>
+					</div>
+
+					<Button
+						onClick={handleSubmit}
+						className='w-full flex items-center gap-2'
+						disabled={
+							isRunning ||
+							loading ||
+							dates.start > dates.end
+						}
+					>
+						{isPending && <LoaderIcon className='w-4 h-4 animate-spin' />}
+						Запустити бюджетування
+					</Button>
+				</div>
+
+				<div className='border-t pt-4 space-y-3'>
+					<p className='text-sm text-muted-foreground'>
+						<b>Статус:</b>{' '}
+						{isStatusLoading || isRefetching ? (
+							<span className='inline-flex items-center gap-2'>
+								<LoaderIcon className='w-4 h-4 animate-spin' /> Завантаження...
+							</span>
+						) : (
+							budgetingStatus?.status ?? startData?.status ?? 'Немає даних'
+						)}
+					</p>
+
+					<Button
+						onClick={() => refetch()}
+						disabled={loading}
+						variant='outline'
+						size='sm'
+						className='flex items-center gap-2 w-full'
+					>
+						<RotateCwIcon
+							className={cn('w-4 h-4 transition-transform duration-500', {
+								'rotate-[360deg]': loading,
+							})}
+						/>
+						Оновити статус
+					</Button>
+				</div>
 			</DialogContent>
 		</Dialog>
 	)
