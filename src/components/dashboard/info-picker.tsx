@@ -150,7 +150,7 @@ export function InfoPicker() {
 				endDate: inputValues.end,
 				budgetVersion: budgetVersion?.version ?? null,
 			})
-			setTimeLeft(10 * 60)
+			setTimeLeft(5 * 60)
 			setIsPlanFactRunning(true)
 			refetch()
 		} catch {}
