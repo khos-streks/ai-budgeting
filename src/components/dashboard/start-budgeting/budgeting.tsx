@@ -29,7 +29,7 @@ export function StartBudgeting() {
 	} = useGetBudgetingStatus()
 
 	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
-	const [isRunning, setIsRunning] = useState<boolean | undefined>(false)
+	const [isRunning, setIsRunning] = useState<boolean>(false)
 	const [timeLeft, setTimeLeft] = useState<number | null>(null)
 
 	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
@@ -43,14 +43,37 @@ export function StartBudgeting() {
 				endDate: format(dates.end, 'yyyy-MM-dd'),
 			})
 			setIsRunning(true)
-			setTimeLeft(10 * 60)
+			setTimeLeft(10 * 60) // 10 хвилин
 			await refetch()
 		} catch {}
 	}
 
 	useEffect(() => {
-		if (!isRunning || timeLeft === null) return
+		const isBackendRunning = budgetingStatus?.is_running
+		const backendStatus = budgetingStatus?.status?.toLowerCase()
 
+		const isFinished =
+			backendStatus?.includes('заверш') ||
+			backendStatus?.includes('готов') ||
+			backendStatus?.includes('done')
+
+		if (isFinished) {
+			setIsRunning(false)
+			setTimeLeft(null)
+			return
+		}
+
+		if (isBackendRunning) {
+			setIsRunning(true)
+			if (timeLeft === null) setTimeLeft(10 * 60)
+		} else {
+			setIsRunning(false)
+			setTimeLeft(null)
+		}
+	}, [budgetingStatus])
+
+	useEffect(() => {
+		if (!isRunning) return
 		const interval = setInterval(() => {
 			setTimeLeft(prev => {
 				if (prev === null) return null
@@ -63,9 +86,8 @@ export function StartBudgeting() {
 				return prev - 1
 			})
 		}, 1000)
-
 		return () => clearInterval(interval)
-	}, [isRunning, timeLeft, refetch])
+	}, [isRunning])
 
 	const formatTime = (seconds: number) => {
 		const m = Math.floor(seconds / 60)
@@ -74,6 +96,7 @@ export function StartBudgeting() {
 	}
 
 	const loading = isPending || isStatusLoading || isRefetching
+	const message = budgetingStatus?.status ?? startData?.status ?? 'Немає даних'
 
 	return (
 		<Dialog>
@@ -114,7 +137,7 @@ export function StartBudgeting() {
 
 					{isRunning && timeLeft !== null && (
 						<p className='text-sm text-muted-foreground'>
-							⏳ Залишилось приблизно: {formatTime(timeLeft)}
+							⏳ Залишилось: ~{formatTime(timeLeft)}
 						</p>
 					)}
 				</div>
@@ -127,7 +150,7 @@ export function StartBudgeting() {
 								<LoaderIcon className='w-4 h-4 animate-spin' /> Завантаження...
 							</span>
 						) : (
-							budgetingStatus?.status ?? startData?.status ?? 'Немає даних'
+							message
 						)}
 					</p>
 
