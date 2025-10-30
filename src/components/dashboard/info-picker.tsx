@@ -14,10 +14,12 @@ import {
 } from 'date-fns'
 import { LoaderIcon, RotateCwIcon } from 'lucide-react'
 import clsx from 'clsx'
+
 import { useInfoContext } from '@/contexts/info-context'
 import { useBudgetVersions, useDeleteBudgetVersion } from '@/hooks/useBudgeting'
 import { useGetPlanFactStatus, useStartPlanFact } from '@/hooks/usePlanFact'
 import { IBudgetVersion } from '@/typing/budget-version'
+
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { DatePicker } from '../ui/date-picker'
@@ -42,17 +44,20 @@ export function InfoPicker() {
 		budgetVersion,
 		setBudgetVersion,
 	} = useInfoContext()
+
 	const {
 		mutateAsync: startPlanFact,
 		isPending: isPlanFactStartPending,
 		data: planFactStartData,
 	} = useStartPlanFact()
+
 	const {
 		data: planFactStatus,
 		refetch,
 		isRefetching: isStatusRefetching,
 		isLoading: isStatusLoading,
 	} = useGetPlanFactStatus()
+
 	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
 
@@ -87,6 +92,7 @@ export function InfoPicker() {
 		let interval: NodeJS.Timeout | undefined
 		if (isPlanFactRunning) {
 			if (timeLeft === null) setTimeLeft(10 * 60)
+
 			interval = setInterval(() => {
 				setTimeLeft(prev => {
 					if (prev === null) return null
@@ -104,13 +110,14 @@ export function InfoPicker() {
 		return () => clearInterval(interval)
 	}, [isPlanFactRunning])
 
-
 	const applyDatePreset = (preset: DatePreset) => {
 		setPreset(preset)
 		if (preset === 'custom') return
+
 		const now = new Date()
 		let startDate: Date
 		let endDate: Date
+
 		switch (preset) {
 			case 'month':
 				startDate = startOfMonth(now)
@@ -127,8 +134,10 @@ export function InfoPicker() {
 			default:
 				return
 		}
+
 		const formattedStartDate = format(startDate, 'yyyy-MM-dd')
 		const formattedEndDate = format(endDate, 'yyyy-MM-dd')
+
 		setInputValues({ start: formattedStartDate, end: formattedEndDate })
 		setStartDate(formattedStartDate)
 		setEndDate(formattedEndDate)
@@ -189,15 +198,18 @@ export function InfoPicker() {
 	const renderPlanFactStatus = () => {
 		const startStatus = planFactStartData?.status
 		const backendStatus = planFactStatus?.status
+
 		if (!startStatus && !backendStatus && !isPlanFactRunning) return null
+
 		let message = backendStatus ?? startStatus
+
 		return (
 			<div className='flex flex-col gap-2 mt-2 text-gray-600'>
 				<div className='flex items-center gap-2'>
 					<span className='text-sm'>
 						{isStatusLoading || isStatusRefetching ? (
 							<div className='flex items-center gap-2'>
-								<LoaderIcon className='animate-spin' size={20} />
+								<LoaderIcon className='animate-spin' size={20} />{' '}
 								Завантаження...
 							</div>
 						) : (
@@ -247,6 +259,7 @@ export function InfoPicker() {
 							<TabsTrigger value='custom'>Кастом</TabsTrigger>
 						</TabsList>
 					</Tabs>
+
 					{preset === 'custom' ? (
 						<div className='flex flex-col gap-4'>
 							<div className='flex gap-4'>

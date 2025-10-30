@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
 } from '@/components/ui/dialog'
 import { DatePicker } from '@/components/ui/date-picker'
 import { LoaderIcon, RotateCwIcon } from 'lucide-react'
@@ -16,131 +16,137 @@ import { cn } from '@/lib/utils'
 import { useGetBudgetingStatus, useStartBudgeting } from '@/hooks/useBudgeting'
 
 export function StartBudgeting() {
-  const { mutateAsync: startBudgeting, isPending, data: startData } = useStartBudgeting()
-  const {
-    data: budgetingStatus,
-    isLoading: isStatusLoading,
-    isRefetching,
-    refetch,
-  } = useGetBudgetingStatus()
+	const {
+		mutateAsync: startBudgeting,
+		isPending,
+		data: startData,
+	} = useStartBudgeting()
+	const {
+		data: budgetingStatus,
+		isLoading: isStatusLoading,
+		isRefetching,
+		refetch,
+	} = useGetBudgetingStatus()
 
-  const [dates, setDates] = useState({ start: new Date(), end: new Date() })
-  const [isRunning, setIsRunning] = useState<boolean | undefined>(false)
-  const [timeLeft, setTimeLeft] = useState<number | null>(null)
+	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
+	const [isRunning, setIsRunning] = useState<boolean | undefined>(false)
+	const [timeLeft, setTimeLeft] = useState<number | null>(null)
 
-  const handleDaySelect = (day: Date, type: 'start' | 'end') => {
-    setDates(prev => ({ ...prev, [type]: day }))
-  }
+	const handleDaySelect = (day: Date, type: 'start' | 'end') => {
+		setDates(prev => ({ ...prev, [type]: day }))
+	}
 
-  const handleSubmit = async () => {
-    try {
-      await startBudgeting({
-        startDate: format(dates.start, 'yyyy-MM-dd'),
-        endDate: format(dates.end, 'yyyy-MM-dd'),
-      })
-      setIsRunning(true)
-      setTimeLeft(10 * 60) // 10 хвилин
-      await refetch()
-    } catch {}
-  }
+	const handleSubmit = async () => {
+		try {
+			await startBudgeting({
+				startDate: format(dates.start, 'yyyy-MM-dd'),
+				endDate: format(dates.end, 'yyyy-MM-dd'),
+			})
+			setIsRunning(true)
+			setTimeLeft(10 * 60)
+			await refetch()
+		} catch {}
+	}
 
-  useEffect(() => {
-    if (!isRunning || timeLeft === null) return
-    const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev === null) return null
-        if (prev <= 1) {
-          clearInterval(interval)
-          refetch()
-          setIsRunning(false)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [isRunning, timeLeft, refetch])
+	useEffect(() => {
+		if (!isRunning || timeLeft === null) return
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
+		const interval = setInterval(() => {
+			setTimeLeft(prev => {
+				if (prev === null) return null
+				if (prev <= 1) {
+					clearInterval(interval)
+					refetch()
+					setIsRunning(false)
+					return 0
+				}
+				return prev - 1
+			})
+		}, 1000)
 
-  const loading = isPending || isStatusLoading || isRefetching
+		return () => clearInterval(interval)
+	}, [isRunning, timeLeft, refetch])
 
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className='max-sm:w-full'>Запустити</Button>
-      </DialogTrigger>
-      <DialogContent className='sm:max-w-md space-y-6'>
-        <DialogHeader>
-          <DialogTitle>Бюджетування</DialogTitle>
-        </DialogHeader>
+	const formatTime = (seconds: number) => {
+		const m = Math.floor(seconds / 60)
+		const s = seconds % 60
+		return `${m}:${s.toString().padStart(2, '0')}`
+	}
 
-        <div className='space-y-4'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <DatePicker
-              id='start-date'
-              label='Дата початку'
-              value={dates.start}
-              onChange={day => handleDaySelect(day, 'start')}
-              disabled={isRunning || loading}
-            />
-            <DatePicker
-              id='end-date'
-              label='Дата завершення'
-              value={dates.end}
-              onChange={day => handleDaySelect(day, 'end')}
-              disabled={isRunning || loading}
-            />
-          </div>
+	const loading = isPending || isStatusLoading || isRefetching
 
-          <Button
-            onClick={handleSubmit}
-            className='w-full flex items-center gap-2'
-            disabled={isRunning || loading || dates.start > dates.end}
-          >
-            {isPending && <LoaderIcon className='w-4 h-4 animate-spin' />}
-            Запустити бюджетування
-          </Button>
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button className='max-sm:w-full'>Запустити</Button>
+			</DialogTrigger>
+			<DialogContent className='sm:max-w-md space-y-6'>
+				<DialogHeader>
+					<DialogTitle>Бюджетування</DialogTitle>
+				</DialogHeader>
 
-          {isRunning && timeLeft !== null && (
-            <p className='text-sm text-muted-foreground'>
-              ⏳ Залишилось приблизно: {formatTime(timeLeft)}
-            </p>
-          )}
-        </div>
+				<div className='space-y-4'>
+					<div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+						<DatePicker
+							id='start-date'
+							label='Дата початку'
+							value={dates.start}
+							onChange={day => handleDaySelect(day, 'start')}
+							disabled={isRunning || loading}
+						/>
+						<DatePicker
+							id='end-date'
+							label='Дата завершення'
+							value={dates.end}
+							onChange={day => handleDaySelect(day, 'end')}
+							disabled={isRunning || loading}
+						/>
+					</div>
 
-        <div className='border-t pt-4 space-y-3'>
-          <p className='text-sm text-muted-foreground'>
-            <b>Статус:</b>{' '}
-            {loading
-              ? (
-                <span className='inline-flex items-center gap-2'>
-                  <LoaderIcon className='w-4 h-4 animate-spin' /> Завантаження...
-                </span>
-              )
-              : budgetingStatus?.status ?? startData?.status ?? 'Немає даних'}
-          </p>
+					<Button
+						onClick={handleSubmit}
+						className='w-full flex items-center gap-2'
+						disabled={isRunning || loading || dates.start > dates.end}
+					>
+						{isPending && <LoaderIcon className='w-4 h-4 animate-spin' />}
+						Запустити бюджетування
+					</Button>
 
-          <Button
-            onClick={() => refetch()}
-            disabled={loading}
-            variant='outline'
-            size='sm'
-            className='flex items-center gap-2 w-full'
-          >
-            <RotateCwIcon
-              className={cn('w-4 h-4 transition-transform duration-500', {
-                'rotate-[360deg]': loading,
-              })}
-            />
-            Оновити статус
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
+					{isRunning && timeLeft !== null && (
+						<p className='text-sm text-muted-foreground'>
+							⏳ Залишилось приблизно: {formatTime(timeLeft)}
+						</p>
+					)}
+				</div>
+
+				<div className='border-t pt-4 space-y-3'>
+					<p className='text-sm text-muted-foreground'>
+						<b>Статус:</b>{' '}
+						{loading ? (
+							<span className='inline-flex items-center gap-2'>
+								<LoaderIcon className='w-4 h-4 animate-spin' /> Завантаження...
+							</span>
+						) : (
+							budgetingStatus?.status ?? startData?.status ?? 'Немає даних'
+						)}
+					</p>
+
+					<Button
+						onClick={() => refetch()}
+						disabled={loading}
+						variant='outline'
+						size='sm'
+						className='flex items-center gap-2 w-full'
+					>
+						<RotateCwIcon
+							className={cn('w-4 h-4 transition-transform duration-500', {
+								'rotate-[360deg]': loading,
+							})}
+						/>
+						Оновити статус
+					</Button>
+				</div>
+			</DialogContent>
+		</Dialog>
+	)
 }

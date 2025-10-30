@@ -3,10 +3,17 @@ import { cookieService } from './cookie.service'
 import { AUTH_KEYS } from '@/typing/enums'
 
 class AssistantService {
-	async askAi({ message }: { message: string }) {
+	async askAi({
+		message,
+		version,
+	}: {
+		message: string
+		version: number | undefined
+	}) {
 		const userId = cookieService.get(AUTH_KEYS.USER_ID)
-		const res = await api.post('/assistant/ask', {
+		const res = await api.post(`/assistant/ask`, {
 			message,
+			version,
 			user_id: userId,
 		})
 		if (!userId || !userId.length) {

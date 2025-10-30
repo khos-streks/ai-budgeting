@@ -15,6 +15,7 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Input } from '../ui/input'
+import { useInfoContext } from '@/contexts/info-context'
 
 export function AiAssistant({ className }: { className?: string }) {
 	const [size, setSize] = useState<'compact' | 'expanded'>('compact')
@@ -27,6 +28,8 @@ export function AiAssistant({ className }: { className?: string }) {
 	const [isThinking, setIsThinking] = useState(false)
 	const messagesEndRef = useRef<HTMLDivElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
+
+	const { budgetVersion } = useInfoContext()
 
 	const { mutateAsync: askAi } = useAiAssistant()
 
@@ -41,6 +44,7 @@ export function AiAssistant({ className }: { className?: string }) {
 
 		await askAi({
 			message,
+			version: budgetVersion?.id,
 		})
 			.then(res => {
 				setMessages([
