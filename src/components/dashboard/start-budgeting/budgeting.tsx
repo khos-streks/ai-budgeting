@@ -26,6 +26,7 @@ export function StartBudgeting() {
 		isLoading: isStatusLoading,
 		isRefetching,
 		refetch,
+		dataUpdatedAt,
 	} = useGetBudgetingStatus()
 
 	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
@@ -43,7 +44,7 @@ export function StartBudgeting() {
 				endDate: format(dates.end, 'yyyy-MM-dd'),
 			})
 			setIsRunning(true)
-			setTimeLeft(10 * 60) // 10 хвилин
+			setTimeLeft(10 * 60)
 			await refetch()
 		} catch {}
 	}
@@ -70,10 +71,10 @@ export function StartBudgeting() {
 			setIsRunning(false)
 			setTimeLeft(null)
 		}
-	}, [budgetingStatus])
+	}, [budgetingStatus, dataUpdatedAt])
 
 	useEffect(() => {
-		if (!isRunning) return;
+		if (!isRunning) return
 		const interval = setInterval(() => {
 			setTimeLeft(prev => {
 				if (prev === null) return null

@@ -55,6 +55,7 @@ export function InfoPicker() {
 		refetch,
 		isRefetching: isStatusRefetching,
 		isLoading: isStatusLoading,
+		dataUpdatedAt
 	} = useGetPlanFactStatus()
 	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
@@ -85,9 +86,11 @@ export function InfoPicker() {
 	}, [budgetVersions])
 
 	useEffect(() => {
-		let interval: NodeJS.Timeout | undefined
-
+		console.log('123')
+		console.log(planFactStatus)
+		const isBackendRunning = planFactStatus?.is_running
 		const backendStatus = planFactStatus?.status?.toLowerCase()
+
 		const isFinished =
 			backendStatus?.includes('заверш') ||
 			backendStatus?.includes('готов') ||
@@ -99,42 +102,25 @@ export function InfoPicker() {
 			return
 		}
 
-		if (planFactStatus?.is_running) {
+		if (isBackendRunning) {
 			setIsPlanFactRunning(true)
-			setTimeLeft(prev => (prev === null ? 10 * 60 : prev))
-
-			interval = setInterval(() => {
-				setTimeLeft(prev => {
-					if (prev === null) return null
-					if (prev <= 1) {
-						clearInterval(interval)
-						refetch()
-						setIsPlanFactRunning(false)
-						return 0
-					}
-					return prev - 1
-				})
-			}, 1000)
+			if (timeLeft === null) setTimeLeft(10 * 60)
 		} else {
 			setIsPlanFactRunning(false)
 			setTimeLeft(null)
 		}
-
-		return () => clearInterval(interval)
-	}, [planFactStatus, refetch])
+	}, [planFactStatus, dataUpdatedAt])
 
 	useEffect(() => {
-		if (!isPlanFactRunning) {
-			setTimeLeft(null)
-			return
-		}
+		if (!isPlanFactRunning) return
 
-		if (timeLeft === null) setTimeLeft(10 * 60)
 		const interval = setInterval(() => {
 			setTimeLeft(prev => {
-				if (!prev) {
+				if (prev === null) return null
+				if (prev <= 1) {
 					clearInterval(interval)
 					refetch()
+					setIsPlanFactRunning(false)
 					return 0
 				}
 				return prev - 1
