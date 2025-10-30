@@ -73,7 +73,7 @@ export function StartBudgeting() {
 	}, [budgetingStatus])
 
 	useEffect(() => {
-		if (!isRunning) return
+		if (!isRunning) return;
 		const interval = setInterval(() => {
 			setTimeLeft(prev => {
 				if (prev === null) return null
