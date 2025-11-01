@@ -55,7 +55,6 @@ export function InfoPicker() {
 		refetch,
 		isRefetching: isStatusRefetching,
 		isLoading: isStatusLoading,
-		dataUpdatedAt
 	} = useGetPlanFactStatus()
 	const { data: budgetVersions } = useBudgetVersions()
 	const { mutateAsync: deleteVersion, isPending } = useDeleteBudgetVersion()
@@ -86,8 +85,6 @@ export function InfoPicker() {
 	}, [budgetVersions])
 
 	useEffect(() => {
-		console.log('123')
-		console.log(planFactStatus)
 		const isBackendRunning = planFactStatus?.is_running
 		const backendStatus = planFactStatus?.status?.toLowerCase()
 
@@ -104,15 +101,19 @@ export function InfoPicker() {
 
 		if (isBackendRunning) {
 			setIsPlanFactRunning(true)
-			if (timeLeft === null) setTimeLeft(10 * 60)
+			if (timeLeft === null) setTimeLeft(5 * 60)
 		} else {
 			setIsPlanFactRunning(false)
 			setTimeLeft(null)
 		}
-	}, [planFactStatus, dataUpdatedAt])
+	}, [planFactStatus])
 
 	useEffect(() => {
 		if (!isPlanFactRunning) return
+
+		const statusInterval = setInterval(() => {
+			refetch()
+		}, 15000)
 
 		const interval = setInterval(() => {
 			setTimeLeft(prev => {
@@ -127,7 +128,10 @@ export function InfoPicker() {
 			})
 		}, 1000)
 
-		return () => clearInterval(interval)
+		return () => {
+			clearInterval(statusInterval)
+			clearInterval(interval)
+		}
 	}, [isPlanFactRunning])
 
 	const applyDatePreset = (preset: DatePreset) => {
@@ -221,20 +225,6 @@ export function InfoPicker() {
 						</span>
 					)}
 				</div>
-				<Button
-					onClick={() => refetch()}
-					disabled={isPlanFactStartPending || isStatusRefetching}
-					variant='outline'
-					size='sm'
-					className='self-start flex items-center gap-2'
-				>
-					<RotateCwIcon
-						className={clsx('w-4 h-4 transition-transform duration-500', {
-							'rotate-[360deg]': isStatusLoading || isStatusRefetching,
-						})}
-					/>
-					Оновити статус
-				</Button>
 			</div>
 		)
 	}
@@ -304,7 +294,10 @@ export function InfoPicker() {
 							)}
 							<Button
 								disabled={
-									isPending || isPlanFactStartPending || !selectedBudgetVersion
+									isPending ||
+									isPlanFactStartPending ||
+									!selectedBudgetVersion ||
+									isPlanFactRunning
 								}
 								onClick={async () => {
 									if (!selectedBudgetVersion?.id) return
@@ -326,6 +319,7 @@ export function InfoPicker() {
 					onClick={applyDates}
 					disabled={
 						isPlanFactStartPending ||
+						isPlanFactRunning ||
 						!selectedBudgetVersion ||
 						!dates.start ||
 						!dates.end ||

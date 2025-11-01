@@ -26,7 +26,6 @@ export function StartBudgeting() {
 		isLoading: isStatusLoading,
 		isRefetching,
 		refetch,
-		dataUpdatedAt,
 	} = useGetBudgetingStatus()
 
 	const [dates, setDates] = useState({ start: new Date(), end: new Date() })
@@ -71,10 +70,13 @@ export function StartBudgeting() {
 			setIsRunning(false)
 			setTimeLeft(null)
 		}
-	}, [budgetingStatus, dataUpdatedAt])
+	}, [budgetingStatus])
 
 	useEffect(() => {
 		if (!isRunning) return
+		const statusInterval = setInterval(() => {
+			refetch()
+		}, 15000)
 		const interval = setInterval(() => {
 			setTimeLeft(prev => {
 				if (prev === null) return null
@@ -87,7 +89,10 @@ export function StartBudgeting() {
 				return prev - 1
 			})
 		}, 1000)
-		return () => clearInterval(interval)
+		return () => {
+			clearInterval(statusInterval)
+			clearInterval(interval)
+		}
 	}, [isRunning])
 
 	const formatTime = (seconds: number) => {
@@ -154,21 +159,6 @@ export function StartBudgeting() {
 							message
 						)}
 					</p>
-
-					<Button
-						onClick={() => refetch()}
-						disabled={loading}
-						variant='outline'
-						size='sm'
-						className='flex items-center gap-2 w-full'
-					>
-						<RotateCwIcon
-							className={cn('w-4 h-4 transition-transform duration-500', {
-								'rotate-[360deg]': loading,
-							})}
-						/>
-						Оновити статус
-					</Button>
 				</div>
 			</DialogContent>
 		</Dialog>
