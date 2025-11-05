@@ -1,5 +1,4 @@
 import { api } from '@/lib/axios'
-import { cookieService } from './cookie.service'
 import { AUTH_KEYS } from '@/typing/enums'
 
 class AssistantService {
@@ -10,14 +9,14 @@ class AssistantService {
 		message: string
 		version: number | undefined
 	}) {
-		const userId = cookieService.get(AUTH_KEYS.USER_ID)
+		const userId = sessionStorage.getItem(AUTH_KEYS.USER_ID)
 		const res = await api.post(`/assistant/ask`, {
 			message,
 			version,
 			user_id: userId,
 		})
 		if (!userId || !userId.length) {
-			cookieService.add(AUTH_KEYS.USER_ID, res.data.user_id)
+			sessionStorage.setItem(AUTH_KEYS.USER_ID, res.data.user_id)
 		}
 		return res.data
 	}
