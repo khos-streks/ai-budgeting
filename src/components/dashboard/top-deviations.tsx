@@ -173,7 +173,7 @@ export const TopDeviations = () => {
 						</div>
 					</>
 				) : (
-					<div>Помилка завантаження даних. Спробуйте будь ласка пізніше</div>
+					<div>Не співпадає план/факт</div>
 				)}
 			</CardContent>
 		</Card>

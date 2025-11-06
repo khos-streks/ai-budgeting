@@ -94,7 +94,7 @@ export function ExcelHtmlViewer({ file }: { file: File | Blob }) {
 
 				setRows(parsed)
 			} catch (error) {
-				console.error('Error loading Excel file:', error)
+				// console.error('Error loading Excel file:', error)
 			}
 		}
 

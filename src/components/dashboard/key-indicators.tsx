@@ -73,7 +73,7 @@ export function KeyIndicators() {
 				) : keyIndicators ? (
 					<ExcelHtmlViewer file={keyIndicators} />
 				) : (
-					<div className='text-sm text-muted-foreground'>Дані відсутні</div>
+					<div className='text-sm text-muted-foreground'>Не співпадає план/факт</div>
 				)}
 			</CardContent>
 		</Card>

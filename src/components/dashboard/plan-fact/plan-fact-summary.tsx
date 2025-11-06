@@ -54,7 +54,9 @@ export function PlanFactSummary() {
 					</div>
 				) : (
 					<div className='flex items-center justify-center p-6'>
-						<span className='text-muted-foreground'>Немає даних</span>
+						<span className='text-muted-foreground'>
+							Не співпадає план/факт
+						</span>
 					</div>
 				)}
 			</CardContent>

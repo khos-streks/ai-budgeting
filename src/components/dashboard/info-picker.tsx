@@ -294,7 +294,7 @@ export function InfoPicker() {
 								</p>
 							)}
 							<Dialog>
-								<DialogTrigger>
+								<DialogTrigger asChild>
 									<Button
 										disabled={
 											isPending ||
@@ -341,7 +341,7 @@ export function InfoPicker() {
 				</div>
 
 				<Dialog>
-					<DialogTrigger>
+					<DialogTrigger asChild>
 						<Button
 							disabled={
 								isPlanFactStartPending ||
