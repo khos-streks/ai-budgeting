@@ -18,21 +18,15 @@ class PlanFactService {
 			params.append('budget_version', budgetVersion.toString())
 		}
 
-		try {
-			const response = await api.get<{
+		return (
+			await api.get<{
 				total_plan: number
 				plan_change_percent: number
 				execution_percent: number
 				anomalies_count: number
 				anomalies?: AnomalyData
 			}>(`/plan-fact/summary?${params.toString()}`)
-			return response.data
-		} catch (error: any) {
-			if (error.response?.status === 204) {
-				return null
-			}
-			throw error
-		}
+		).data
 	}
 
 	async getMainTable(
