@@ -26,7 +26,7 @@ export function SummaryReport() {
 		)
 	}
 
-	if (!isLoading && (!isError || !data)) {
+	if (!isLoading && (isError || !data)) {
 		return (
 			<Card>
 				<CardHeader>
