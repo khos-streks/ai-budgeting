@@ -32,6 +32,7 @@ import {
 	SelectValue,
 } from '../ui/select'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '../ui/dialog'
 
 type DatePreset = 'month' | 'quarter' | 'year' | 'custom'
 
@@ -292,54 +293,113 @@ export function InfoPicker() {
 									Немає доступних версій бюджету для обраного періоду
 								</p>
 							)}
-							<Button
-								disabled={
-									isPending ||
-									isPlanFactStartPending ||
-									!selectedBudgetVersion ||
-									isPlanFactRunning
-								}
-								onClick={async () => {
-									if (!selectedBudgetVersion?.id) return
-									await deleteVersion(selectedBudgetVersion.id.toString())
-								}}
-								variant='destructive'
-								className='self-end flex items-center gap-2 bg-transparent border border-destructive text-destructive hover:text-white'
-							>
-								{isPending && <LoaderIcon className='animate-spin' />}
-								Видалити
-							</Button>
+							<Dialog>
+								<DialogTrigger>
+									<Button
+										disabled={
+											isPending ||
+											isPlanFactStartPending ||
+											!selectedBudgetVersion ||
+											isPlanFactRunning
+										}
+										variant='destructive'
+										className='self-end flex items-center gap-2 bg-transparent border border-destructive text-destructive hover:text-white'
+									>
+										Видалити
+									</Button>
+								</DialogTrigger>
+								<DialogContent>
+									<DialogTitle>
+										Підтвердження видалення версії бюджету
+									</DialogTitle>
+									<p>
+										Видалення версії бюджету є незворотнім. Ви впевнені, що
+										хочете продовжити?
+									</p>
+									<Button
+										disabled={
+											isPending ||
+											isPlanFactStartPending ||
+											!selectedBudgetVersion ||
+											isPlanFactRunning
+										}
+										onClick={async () => {
+											if (!selectedBudgetVersion?.id) return
+											await deleteVersion(selectedBudgetVersion.id.toString())
+										}}
+										className='flex items-center gap-2 w-min'
+									>
+										{isPending && <LoaderIcon className='animate-spin' />}
+										Так
+									</Button>
+								</DialogContent>
+							</Dialog>
 						</div>
 					) : (
 						<>Завантаження версій бюджету...</>
 					)}
 				</div>
 
-				<Button
-					onClick={applyDates}
-					disabled={
-						isPlanFactStartPending ||
-						isPlanFactRunning ||
-						!selectedBudgetVersion ||
-						!dates.start ||
-						!dates.end ||
-						(dates.start &&
-							dates.end &&
-							dates.end.getTime() < dates.start.getTime())
-					}
-					title={
-						!selectedBudgetVersion || !dates.start || !dates.end
-							? 'Оберіть період і версію бюджету'
-							: dates.start &&
-							  dates.end &&
-							  dates.end.getTime() < dates.start.getTime()
-							? 'Кінцева дата не може бути меншою за початкову'
-							: ''
-					}
-					className='self-end flex items-center gap-2 disabled:pointer-events-auto'
-				>
-					Запустити аналіз
-				</Button>
+				<Dialog>
+					<DialogTrigger>
+						<Button
+							disabled={
+								isPlanFactStartPending ||
+								isPlanFactRunning ||
+								!selectedBudgetVersion ||
+								!dates.start ||
+								!dates.end ||
+								(dates.start &&
+									dates.end &&
+									dates.end.getTime() < dates.start.getTime())
+							}
+							title={
+								!selectedBudgetVersion || !dates.start || !dates.end
+									? 'Оберіть період і версію бюджету'
+									: dates.start &&
+									  dates.end &&
+									  dates.end.getTime() < dates.start.getTime()
+									? 'Кінцева дата не може бути меншою за початкову'
+									: ''
+							}
+							className='self-end flex items-center gap-2 disabled:pointer-events-auto'
+						>
+							Запустити аналіз
+						</Button>
+					</DialogTrigger>
+					<DialogContent>
+						<DialogTitle>Підтвердження запуску аналізу</DialogTitle>
+						<p>
+							Ви впевнені, що хочете запустити план-факт аналіз для обраного
+							періоду?
+						</p>
+						<Button
+							onClick={applyDates}
+							disabled={
+								isPlanFactStartPending ||
+								isPlanFactRunning ||
+								!selectedBudgetVersion ||
+								!dates.start ||
+								!dates.end ||
+								(dates.start &&
+									dates.end &&
+									dates.end.getTime() < dates.start.getTime())
+							}
+							title={
+								!selectedBudgetVersion || !dates.start || !dates.end
+									? 'Оберіть період і версію бюджету'
+									: dates.start &&
+									  dates.end &&
+									  dates.end.getTime() < dates.start.getTime()
+									? 'Кінцева дата не може бути меншою за початкову'
+									: ''
+							}
+							className='flex items-center gap-2 disabled:pointer-events-auto w-min'
+						>
+							Так
+						</Button>
+					</DialogContent>
+				</Dialog>
 
 				{renderPlanFactStatus()}
 			</CardContent>

@@ -44,7 +44,7 @@ export function AiAssistant({ className }: { className?: string }) {
 
 		await askAi({
 			message,
-			version: budgetVersion?.id,
+			version: budgetVersion?.version,
 		})
 			.then(res => {
 				setMessages([
