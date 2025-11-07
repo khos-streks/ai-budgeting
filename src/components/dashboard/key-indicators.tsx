@@ -30,7 +30,7 @@ export function KeyIndicators() {
 	}, [filters])
 
 	const { data: keyIndicators, isLoading: isKeyIndicatorsLoading } =
-		useGetKeyIndicators(budgetVersion?.id, currentIndicator)
+		useGetKeyIndicators(budgetVersion?.version, currentIndicator)
 
 	const isLoading = isFiltersLoading || isKeyIndicatorsLoading || !budgetVersion
 
