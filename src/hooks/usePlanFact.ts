@@ -127,18 +127,18 @@ export function useGetQuantityMetrics(budgetType: string | undefined) {
 }
 
 export function useGetKeyIndicators(
-	version_id: number | undefined,
+	version: number | undefined,
 	indicator: string | undefined
 ) {
 	return useQuery({
-		queryKey: ['get key indicators', version_id, indicator],
+		queryKey: ['get key indicators', version, indicator],
 		queryFn: () => {
-			if (version_id && indicator) {
-				return planFactService.getKeyIndicators(version_id, indicator)
+			if (version && indicator) {
+				return planFactService.getKeyIndicators(version, indicator)
 			}
 		},
 		refetchOnWindowFocus: false,
-		enabled: !!version_id && !!indicator,
+		enabled: !!version && !!indicator,
 	})
 }
 
