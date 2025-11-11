@@ -42,7 +42,7 @@ export function StartBudgeting() {
 				endDate: format(dates.end, 'yyyy-MM-dd'),
 			})
 			setIsRunning(true)
-			setTimeLeft(10 * 60)
+			setTimeLeft(15 * 60)
 			await refetch()
 		} catch {}
 	}
@@ -163,3 +163,4 @@ export function StartBudgeting() {
 		</Dialog>
 	)
 }
+
