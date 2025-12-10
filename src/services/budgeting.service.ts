@@ -52,14 +52,24 @@ class BudgetingService {
 		return response.data
 	}
 
-	async getFiles() {
-		const response = await api.get<{ files: string[] }>(`/budgeting/file-names`)
+	async getFiles(budgetVersion?: number) {
+		const response = await api.get<{ files: string[] }>(
+			`/budgeting/file-names`,
+			{ params: { version: budgetVersion } }
+		)
 		return response.data
 	}
 
-	async downloadFile(fileName: string | null) {
+	async downloadFile({
+		fileName,
+		budgetVersion,
+	}: {
+		fileName: string | null
+		budgetVersion?: number
+	}) {
 		if (!fileName) return
 		const response = await api.get(`/budgeting/download/${fileName}`, {
+			params: { version: budgetVersion },
 			responseType: 'blob',
 		})
 		return response.data

@@ -10,7 +10,7 @@ export function useSummaryData(
 		queryKey: ['summary data', budgetVersion, filters],
 		queryFn: () => budgetingService.getConsolidated(budgetVersion, filters),
 		refetchOnWindowFocus: false,
-		enabled: !!budgetVersion
+		enabled: !!budgetVersion,
 	})
 }
 
@@ -50,18 +50,24 @@ export function useDeleteBudgetVersion() {
 	})
 }
 
-export function useFiles() {
+export function useFiles({ budgetVersion }: { budgetVersion?: number }) {
 	return useQuery({
-		queryKey: ['files'],
-		queryFn: () => budgetingService.getFiles(),
+		queryKey: ['files', budgetVersion],
+		queryFn: () => budgetingService.getFiles(budgetVersion),
 		refetchOnWindowFocus: false,
 	})
 }
 
-export function useDownloadFile(fileName: string | null) {
+export function useDownloadFile({
+	fileName,
+	budgetVersion,
+}: {
+	fileName: string | null
+	budgetVersion?: number
+}) {
 	return useQuery({
-		queryKey: ['download file', fileName],
-		queryFn: () => budgetingService.downloadFile(fileName),
+		queryKey: ['download file', fileName, budgetVersion],
+		queryFn: () => budgetingService.downloadFile({ fileName, budgetVersion }),
 		refetchOnWindowFocus: false,
 		refetchOnMount: false,
 		refetchInterval: false,

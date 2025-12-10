@@ -6,9 +6,17 @@ import { Button } from '../ui/button'
 import { DownloadIcon, Loader2, XCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useInfoContext } from '@/contexts/info-context'
 
 export function FilesDownloading() {
-	const { data, isLoading: isFilesLoading, isError: isFilesError } = useFiles()
+	const { budgetVersion } = useInfoContext()
+	const {
+		data,
+		isLoading: isFilesLoading,
+		isError: isFilesError,
+	} = useFiles({
+		budgetVersion: budgetVersion?.version,
+	})
 	const queryClient = useQueryClient()
 
 	const [downloadingFile, setDownloadingFile] = useState<string | null>(null)
@@ -17,7 +25,10 @@ export function FilesDownloading() {
 		data: downloadedBlob,
 		isLoading: isDownloading,
 		isError: isDownloadError,
-	} = useDownloadFile(downloadingFile)
+	} = useDownloadFile({
+		fileName: downloadingFile,
+		budgetVersion: budgetVersion?.version,
+	})
 
 	useEffect(() => {
 		if (
